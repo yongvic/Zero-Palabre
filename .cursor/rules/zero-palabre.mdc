@@ -1,0 +1,34 @@
+---
+description: Règles Zéro-Palabre — design system, stack Next.js/Prisma, conventions FR
+globs: ["**/*.{ts,tsx,css,md}"]
+alwaysApply: true
+---
+
+# Zéro-Palabre
+
+Plateforme de preuve numérique d'accords (Togo / Afrique de l'Ouest).
+
+## Obligatoire
+
+- Lire `docs/NORMS-DEVELOPPEMENT.md` et `docs/DESIGN_SYSTEM.md` avant tout UI
+- Stack : Next.js 14 App Router, Prisma, PostgreSQL, Auth.js magic link, Resend, Zod, Lucide
+- Police : Plus Jakarta Sans uniquement
+- Couleurs : `var(--color-*)` — primaire teal `#0F6E56` via token `--color-primary-800`
+- Mobile-first, touch targets ≥ 44px
+- Un seul CTA primaire par page
+- Accords immuables après statut ACCEPTED
+- Loguer transitions dans AccordEvent
+
+## Interdit
+
+- Inter, Roboto, gradients rainbow, emoji comme icônes
+- Couleurs hex hardcodées dans composants
+- Deux boutons primaires sur une vue
+- Placeholder seul sans label visible
+- Modifier un accord validé
+
+## Structure
+
+- `src/components/ui/` — primitives
+- `src/lib/validations/` — schémas Zod
+- Routes dashboard sous `src/app/(dashboard)/`
