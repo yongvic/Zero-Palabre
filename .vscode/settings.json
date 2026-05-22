@@ -1,0 +1,9 @@
+{
+  "typescript.tsconfig": "./tsconfig.json",
+  "files.exclude": {
+    "**/zero-palabre-app": true
+  },
+  "search.exclude": {
+    "**/zero-palabre-app": true
+  }
+}

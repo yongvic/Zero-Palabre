@@ -8,6 +8,11 @@ export default function ConnexionErreurPage({
 }: {
   searchParams: { error?: string };
 }) {
+  const message =
+    searchParams.error === "CredentialsSignin"
+      ? "Email ou mot de passe incorrect."
+      : "Une erreur s'est produite lors de la connexion.";
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-12">
       <Link href="/" className="mb-8">
@@ -16,11 +21,7 @@ export default function ConnexionErreurPage({
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Connexion impossible</CardTitle>
-          <CardDescription>
-            {searchParams.error === "Verification"
-              ? "Le lien a expiré ou a déjà été utilisé."
-              : "Une erreur s'est produite lors de l'envoi du lien."}
-          </CardDescription>
+          <CardDescription>{message}</CardDescription>
         </CardHeader>
         <div className="px-6 pb-6">
           <Button asChild className="w-full">
