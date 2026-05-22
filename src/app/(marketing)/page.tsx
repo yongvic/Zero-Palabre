@@ -94,9 +94,9 @@ export default function HomePage() {
                     <Smartphone className="h-3.5 w-3.5" />
                     Propulsé par la confiance · Togo
                   </motion.span>
-                  <h1 className="text-display-xl tracking-tight leading-[0.95] text-balance">
+                  <h1 className="text-display-xl tracking-tight leading-[0.95] text-balance text-neutral-0">
                     Zéro palabre. <br />
-                    <span className="text-primary-500">Formalisez</span> vos <br />
+                    Formalisez vos <br />
                     engagements.
                   </h1>
                   <p className="max-w-lg text-lg md:text-xl text-neutral-400 leading-relaxed font-medium">
