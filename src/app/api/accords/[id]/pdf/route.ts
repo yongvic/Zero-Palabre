@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { generateAccordPdfBuffer } from "@/lib/generate-accord-pdf";
 import { ACCORD_TYPE_LABELS } from "@/lib/constants";
-import { formatDate, formatDateTime, formatMontant } from "@/lib/utils";
+import { formatDate, formatDateTime, formatMontantPdf } from "@/lib/utils";
 
 export async function GET(
   _req: Request,
@@ -42,7 +42,7 @@ export async function GET(
     destinataireNom: accord.destinataireNom,
     destinataireEmail: accord.destinataireEmail,
     montant: accord.montant
-      ? formatMontant(Number(accord.montant), accord.devise)
+      ? formatMontantPdf(Number(accord.montant), accord.devise)
       : undefined,
     devise: accord.devise,
     dateEcheance: accord.dateEcheance

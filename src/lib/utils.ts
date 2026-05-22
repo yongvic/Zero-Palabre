@@ -16,6 +16,24 @@ export function formatMontant(
   }).format(n) + ` ${devise}`;
 }
 
+/**
+ * Variante PDF-safe : remplace les séparateurs de milliers Unicode
+ * (espace fine insécable U+202F) par des espaces normaux.
+ * @react-pdf/renderer ne supporte pas U+202F et l'affiche comme "/".
+ */
+export function formatMontantPdf(
+  montant: number | string | null | undefined,
+  devise = "FCFA"
+): string {
+  if (montant == null || montant === "") return "—";
+  const n = typeof montant === "string" ? parseFloat(montant) : montant;
+  const formatted = new Intl.NumberFormat("fr-FR", {
+    maximumFractionDigits: 0,
+  }).format(n);
+  // Remplace U+202F (espace fine insécable) et U+00A0 (espace insécable) par espace normale
+  return formatted.replace(/[\u202F\u00A0]/g, " ") + ` ${devise}`;
+}
+
 export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "—";
   const d = typeof date === "string" ? new Date(date) : date;

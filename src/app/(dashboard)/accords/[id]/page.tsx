@@ -73,11 +73,6 @@ export default async function AccordDetailPage({
           <p>Échéance : {formatDate(accord.dateEcheance)}</p>
         )}
         <p className="whitespace-pre-wrap leading-relaxed">{accord.description}</p>
-        {accord.contentHash && (
-          <p className="break-all font-mono text-xs text-neutral-500">
-            Hash : {accord.contentHash}
-          </p>
-        )}
       </Card>
 
       <h2 className="mb-4 text-lg font-semibold">Historique</h2>
