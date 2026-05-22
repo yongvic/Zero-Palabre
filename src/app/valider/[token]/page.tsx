@@ -40,7 +40,7 @@ export default async function ValiderPage({
       <header className="sticky top-0 z-40 border-b border-neutral-150 bg-neutral-0/80 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={110} height={28} priority className="h-7 w-auto" />
+            <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={90} height={22} priority className="h-[22px] w-auto" />
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-800">
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />

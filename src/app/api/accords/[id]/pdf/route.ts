@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { generateAccordPdfBuffer } from "@/lib/generate-accord-pdf";
 import { ACCORD_TYPE_LABELS } from "@/lib/constants";
 import { formatDate, formatDateTime, formatMontantPdf } from "@/lib/utils";
+import QRCode from "qrcode";
 
 export async function GET(
   _req: Request,
@@ -31,6 +32,13 @@ export async function GET(
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/verifier/${accord.publicToken}`;
+
+  const qrCodeDataUrl = await QRCode.toDataURL(verifyUrl, {
+    margin: 1,
+    width: 150,
+    color: { dark: "#0F6E56", light: "#FFFFFF" },
+  });
 
   const buffer = await generateAccordPdfBuffer({
     reference: accord.reference,
@@ -50,7 +58,8 @@ export async function GET(
       : undefined,
     validatedAt: formatDateTime(accord.validatedAt),
     contentHash: accord.contentHash,
-    verifyUrl: `${baseUrl}/verifier/${accord.publicToken}`,
+    verifyUrl,
+    qrCodeDataUrl,
   });
 
   return new NextResponse(new Uint8Array(buffer), {
@@ -60,3 +69,4 @@ export async function GET(
     },
   });
 }
+

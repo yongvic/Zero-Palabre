@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { 
   ShieldCheck, 
   Calendar, 
@@ -9,10 +10,12 @@ import {
   Layers, 
   Lock, 
   Cpu, 
-  DollarSign, 
   Award, 
-  FileText 
+  FileText,
+  ChevronLeft,
+  QrCode
 } from "lucide-react";
+import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { Badge, statutToBadgeVariant } from "@/components/ui/badge";
 import {
@@ -33,13 +36,28 @@ export default async function VerifierPage({
 
   if (!accord) notFound();
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/verifier/${params.token}`;
+  const qrCodeDataUrl = await QRCode.toDataURL(verifyUrl, {
+    margin: 1,
+    width: 140,
+    color: { dark: "#0F6E56", light: "#FFFFFF" },
+  });
+
   return (
     <div className="min-h-screen bg-neutral-50/50 pb-20">
       {/* Header premium et sécurisé */}
-      <header className="sticky top-0 z-40 border-b border-neutral-150 bg-neutral-0/80 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-neutral-150 bg-neutral-0/80 px-6 py-3.5 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={110} height={28} priority className="h-7 w-auto" />
+            <Link
+              href="/"
+              className="mr-1 flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+              aria-label="Retour"
+            >
+              <ChevronLeft className="h-4.5 w-4.5" strokeWidth={2} />
+            </Link>
+            <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={90} height={22} priority className="h-[22px] w-auto" />
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-800 border border-primary-100">
             <ShieldCheck className="h-3.5 w-3.5 animate-pulse text-primary-700" strokeWidth={2.5} />
@@ -174,12 +192,29 @@ export default async function VerifierPage({
                   <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Horodatage & Preuve Blockchain (SHA-256)</span>
                 </div>
                 <div className="relative rounded-xl border border-neutral-800 bg-neutral-950 p-4 font-mono text-[11px] tracking-tight text-neutral-200 shadow-lg overflow-x-auto select-all">
-                  <span className="block text-primary-400 mb-1 font-bold text-[9px] uppercase tracking-wider">// HASH D&apos;INTÉGRITÉ DE L&apos;ACCORD (INALTÉRABLE)</span>
+                  <span className="block text-primary-400 mb-1 font-bold text-[9px] uppercase tracking-wider">{"// HASH D'INTÉGRITÉ DE L'ACCORD (INALTÉRABLE)"}</span>
                   <span className="block break-all text-neutral-100 font-semibold">{accord.contentHash}</span>
                   <div className="absolute right-3 bottom-3 text-[9px] font-bold text-neutral-500 uppercase tracking-widest pointer-events-none">ZP SECURE</div>
                 </div>
               </div>
             )}
+
+            {/* QR Code de Vérification Publique */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 pb-1 border-b border-neutral-100">
+                <QrCode className="h-4 w-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">QR Code de Vérification Instantanée</span>
+              </div>
+              <div className="flex items-center gap-5 rounded-xl border border-neutral-100 bg-white p-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={qrCodeDataUrl} alt="QR Code de vérification" width={100} height={100} className="rounded-lg border border-neutral-100" />
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-neutral-700">Scannez pour vérifier</p>
+                  <p className="text-[11px] leading-relaxed text-neutral-500">Pointez l&apos;appareil photo de votre téléphone sur ce code pour accéder au registre public de cet accord en temps réel.</p>
+                  <p className="mt-2 font-mono text-[9px] text-primary-700 break-all select-all">{verifyUrl}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

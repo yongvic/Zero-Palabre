@@ -6,7 +6,18 @@ import { ACCORD_STATUT_LABELS, ACCORD_TYPE_LABELS } from "@/lib/constants";
 import { formatDate, formatMontant } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 
-export function AccordCard({ accord }: { accord: Accord }) {
+export function AccordCard({
+  accord,
+  currentUserId,
+}: {
+  accord: Accord & { initiateur?: { name: string | null } };
+  currentUserId?: string;
+}) {
+  const isInitiator = !currentUserId || accord.initiateurId === currentUserId;
+  const roleText = isInitiator
+    ? `Dest. : ${accord.destinataireNom}`
+    : `Par : ${accord.initiateur?.name ?? "Utilisateur"}`;
+
   return (
     <Link href={`/accords/${accord.id}`}>
       <Card interactive className="block">
@@ -20,7 +31,7 @@ export function AccordCard({ accord }: { accord: Accord }) {
             </div>
             <h3 className="truncate font-semibold text-neutral-900">{accord.titre}</h3>
             <p className="mt-1 text-sm text-neutral-600">
-              {ACCORD_TYPE_LABELS[accord.type]} · {accord.destinataireNom}
+              {ACCORD_TYPE_LABELS[accord.type]} · {roleText}
             </p>
             <p className="mt-2 text-sm font-medium text-primary-800">
               {formatMontant(

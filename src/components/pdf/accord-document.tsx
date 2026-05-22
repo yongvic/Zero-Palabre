@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer";
 
@@ -24,6 +25,10 @@ const styles = StyleSheet.create({
   },
   footer: { position: "absolute", bottom: 30, left: 40, right: 40, fontSize: 8, color: "#9A9A94" },
   hash: { fontSize: 7, marginTop: 8, color: "#757570" },
+  qrRow: { flexDirection: "row", marginTop: 16, alignItems: "flex-start", gap: 12 },
+  qrImage: { width: 72, height: 72 },
+  qrText: { fontSize: 7, color: "#757570", flex: 1 },
+  qrLabel: { fontSize: 8, fontWeight: "bold", color: "#0F6E56", marginBottom: 4 },
 });
 
 export interface AccordPdfProps {
@@ -41,6 +46,7 @@ export interface AccordPdfProps {
   validatedAt: string;
   contentHash: string;
   verifyUrl: string;
+  qrCodeDataUrl: string;
 }
 
 export function AccordPdfDocument(props: AccordPdfProps) {
@@ -102,7 +108,19 @@ export function AccordPdfDocument(props: AccordPdfProps) {
         </View>
 
         <Text style={styles.hash}>SHA-256 : {props.contentHash}</Text>
-        <Text style={styles.hash}>Vérification : {props.verifyUrl}</Text>
+
+        {/* QR Code + lien de vérification */}
+        <View style={styles.qrRow}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <Image src={props.qrCodeDataUrl} style={styles.qrImage} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.qrLabel}>Vérification publique</Text>
+            <Text style={styles.qrText}>
+              Scannez ce code QR ou visitez l&apos;URL ci-dessous pour accéder au registre public de cet accord et vérifier son authenticité à tout moment.
+            </Text>
+            <Text style={{ ...styles.qrText, marginTop: 4, color: "#0F6E56" }}>{props.verifyUrl}</Text>
+          </View>
+        </View>
 
         <Text style={styles.footer}>
           Document généré par Zéro-Palabre. Ce document constitue une preuve de bonne foi,
@@ -112,3 +130,4 @@ export function AccordPdfDocument(props: AccordPdfProps) {
     </Document>
   );
 }
+

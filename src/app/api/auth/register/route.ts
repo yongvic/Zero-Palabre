@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { registerSchema } from "@/lib/validations/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Créer le score de fiabilité et l'abonnement gratuit
+    // Créer le score de fiabilité, l'abonnement gratuit, et lier les accords existants
     await Promise.all([
       prisma.reliabilityScore.create({
         data: { userId: user.id },
@@ -44,18 +45,17 @@ export async function POST(req: Request) {
       prisma.subscription.create({
         data: { userId: user.id, plan: "FREE" },
       }),
+      prisma.accord.updateMany({
+        where: { destinataireEmail: user.email },
+        data: { destinataireId: user.id },
+      }),
     ]);
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
-    // Erreur de validation Zod
-    if (
-      err !== null &&
-      typeof err === "object" &&
-      "errors" in err
-    ) {
+    if (err instanceof z.ZodError) {
       return NextResponse.json(
-        { error: { code: "VALIDATION_ERROR", message: "Données invalides" } },
+        { error: { code: "VALIDATION_ERROR", message: err.errors[0]?.message ?? "Données invalides" } },
         { status: 400 }
       );
     }
@@ -66,3 +66,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

@@ -66,6 +66,11 @@ export async function POST(req: Request) {
     const reference = await generateAccordReference();
     const inviteExpiresAt = addHours(new Date(), INVITE_EXPIRY_HOURS);
 
+    const existingDest = await prisma.user.findUnique({
+      where: { email: input.destinataireEmail },
+      select: { id: true },
+    });
+
     const accord = await prisma.accord.create({
       data: {
         reference,
@@ -79,6 +84,7 @@ export async function POST(req: Request) {
           : null,
         destinataireNom: input.destinataireNom,
         destinataireEmail: input.destinataireEmail,
+        destinataireId: existingDest?.id ?? null,
         initiateurId: session.user.id,
         statut: "SENT",
         sentAt: new Date(),

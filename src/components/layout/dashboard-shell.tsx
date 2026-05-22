@@ -25,12 +25,21 @@ const nav = [
 export function DashboardShell({
   children,
   userName,
+  userImage,
 }: {
   children: React.ReactNode;
   userName?: string | null;
+  userImage?: string | null;
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const initials = (userName ?? "?")
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="flex min-h-screen bg-neutral-50">
@@ -42,7 +51,7 @@ export function DashboardShell({
       >
         <div className="flex h-14 items-center border-b border-neutral-800 px-4 lg:h-16">
           <Link href="/accords">
-            <Image src="/brand/logo-blanc.png" alt="Zéro-Palabre" width={120} height={28} />
+            <Image src="/brand/logo-blanc.png" alt="Zéro-Palabre" width={50} height={28} />
           </Link>
           <button
             type="button"
@@ -74,11 +83,29 @@ export function DashboardShell({
           })}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 border-t border-neutral-800 p-3">
-          <p className="truncate px-3 text-xs text-neutral-500">{userName}</p>
+          <Link
+            href="/profil"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-neutral-800"
+          >
+            {/* Avatar */}
+            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-neutral-700">
+              {userImage ? (
+                <Image src={userImage} alt={userName ?? "profil"} fill className="object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center bg-primary-800 text-[11px] font-bold text-white">
+                  {initials}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold text-neutral-200">{userName}</p>
+              <p className="text-[10px] text-neutral-500">Voir le profil</p>
+            </div>
+          </Link>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="mt-2 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-0"
+            className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-0"
           >
             <LogOut className="h-5 w-5" strokeWidth={1.5} />
             Déconnexion
@@ -104,7 +131,17 @@ export function DashboardShell({
           >
             <Menu strokeWidth={1.5} />
           </button>
-          <span className="text-sm font-semibold">Tableau de bord</span>
+          <span className="flex-1 text-sm font-semibold">Tableau de bord</span>
+          {/* Mobile avatar */}
+          <Link href="/profil" aria-label="Mon profil" className="relative h-8 w-8 overflow-hidden rounded-full border border-neutral-200">
+            {userImage ? (
+              <Image src={userImage} alt={userName ?? "profil"} fill className="object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center bg-primary-800 text-[10px] font-bold text-white">
+                {initials}
+              </span>
+            )}
+          </Link>
         </header>
         <main className="flex-1 p-4 md:p-8">{children}</main>
 

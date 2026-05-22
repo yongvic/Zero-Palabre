@@ -13,7 +13,15 @@ export default async function AccordsPage() {
   const userId = session!.user!.id;
 
   const accords = await prisma.accord.findMany({
-    where: { initiateurId: userId },
+    where: {
+      OR: [
+        { initiateurId: userId },
+        { destinataireId: userId },
+      ],
+    },
+    include: {
+      initiateur: true,
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -39,7 +47,7 @@ export default async function AccordsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {accords.map((accord) => (
-            <AccordCard key={accord.id} accord={accord} />
+            <AccordCard key={accord.id} accord={accord} currentUserId={userId} />
           ))}
         </div>
       )}

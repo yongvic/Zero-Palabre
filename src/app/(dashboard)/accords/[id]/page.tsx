@@ -21,7 +21,10 @@ export default async function AccordDetailPage({
   const accord = await prisma.accord.findFirst({
     where: {
       id: params.id,
-      initiateurId: session!.user!.id,
+      OR: [
+        { initiateurId: session!.user!.id },
+        { destinataireId: session!.user!.id },
+      ],
     },
     include: {
       historique: { orderBy: { createdAt: "asc" } },

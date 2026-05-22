@@ -33,7 +33,7 @@ export function SiteHeader({ dark = false }: SiteHeaderProps) {
       <div className="mx-auto flex h-14 max-w-container items-center justify-between px-4 md:h-16 md:px-10 lg:px-20">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src={dark ? "/brand/logo-blanc.png" : "/brand/logo-vert.png"}
+            src="/brand/logo-vert.png"
             alt="Zéro-Palabre"
             width={140}
             height={36}
