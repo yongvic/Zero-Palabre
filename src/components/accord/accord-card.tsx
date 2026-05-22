@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
 import type { Accord } from "@/types/database";
-import { Badge, statutToBadgeVariant } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ACCORD_STATUT_LABELS, ACCORD_TYPE_LABELS } from "@/lib/constants";
-import { formatDate, formatMontant } from "@/lib/utils";
 import { ChevronRight, Calendar, User as UserIcon } from "lucide-react";
 
 export function AccordCard({

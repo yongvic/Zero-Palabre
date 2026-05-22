@@ -17,12 +17,12 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
-import { Badge, statutToBadgeVariant } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   ACCORD_STATUT_LABELS,
   ACCORD_TYPE_LABELS,
 } from "@/lib/constants";
-import { formatDate, formatMontant } from "@/lib/utils";
+import { formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
 
 export default async function VerifierPage({
   params,

@@ -2,13 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Badge, statutToBadgeVariant } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { CopyButton } from "@/components/accord/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   ACCORD_STATUT_LABELS,
 } from "@/lib/constants";
-import { formatDate, formatDateTime, formatMontant } from "@/lib/utils";
+import { formatDate, formatDateTime, formatMontant, statutToBadgeVariant } from "@/lib/utils";
 import { Download, ExternalLink, Calendar, User, FileText, ChevronLeft, ShieldCheck } from "lucide-react";
 
 export default async function AccordDetailPage({
@@ -190,15 +191,10 @@ export default async function AccordDetailPage({
                <div className="bg-neutral-0 border border-primary-200 rounded-xl p-3 font-mono text-[11px] text-primary-700 truncate group-hover:bg-primary-50 transition-colors">
                   {baseUrl}/valider/{accord.publicToken}
                </div>
-               <button 
-                 onClick={() => {
-                   navigator.clipboard.writeText(`${baseUrl}/valider/${accord.publicToken}`);
-                   // toast notification would be good here
-                 }}
-                 className="mt-3 w-full text-center text-xs font-bold text-primary-700 hover:text-primary-900 transition-colors"
-               >
-                 Copier le lien sécurisé
-               </button>
+               <CopyButton 
+                 text={`${baseUrl}/valider/${accord.publicToken}`}
+                 label="Copier le lien sécurisé"
+               />
              </div>
           </Card>
         </div>
@@ -206,4 +202,3 @@ export default async function AccordDetailPage({
     </div>
   );
 }
-

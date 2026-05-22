@@ -2,7 +2,10 @@
 const nextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
-    domains: ["fszyjfcm6dfwlrlj.public.blob.vercel-storage.com"],
+    domains: [
+      "fszyjfcm6dfwlrlj.public.blob.vercel-storage.com",
+      "picsum.photos",
+    ],
   },
   experimental: {
     serverComponentsExternalPackages: ["@react-pdf/renderer"],

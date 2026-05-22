@@ -5,8 +5,8 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ValidateAccordClient } from "@/components/accord/validate-accord-client";
 import { ACCORD_TYPE_LABELS } from "@/lib/constants";
-import { formatDate, formatMontant } from "@/lib/utils";
-import { Badge, statutToBadgeVariant } from "@/components/ui/badge";
+import { formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { ACCORD_STATUT_LABELS } from "@/lib/constants";
 import { Calendar, FileText, Layers, ShieldCheck, User } from "lucide-react";
 

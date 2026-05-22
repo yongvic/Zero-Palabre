@@ -46,19 +46,3 @@ export function Badge({
   );
 }
 
-export function statutToBadgeVariant(
-  statut: string
-): VariantProps<typeof badgeVariants>["variant"] {
-  const map: Record<string, VariantProps<typeof badgeVariants>["variant"]> = {
-    PENDING: "pending",
-    SENT: "sent",
-    VIEWED: "viewed",
-    ACCEPTED: "accepted",
-    REJECTED: "rejected",
-    EXPIRED: "expired",
-    HONORED: "honored",
-    DISPUTED: "disputed",
-  };
-  return map[statut] ?? "default";
-}
-

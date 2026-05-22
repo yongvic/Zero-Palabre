@@ -55,3 +55,17 @@ export function formatDateTime(date: Date | string | null | undefined): string {
     minute: "2-digit",
   }).format(d);
 }
+
+export function statutToBadgeVariant(statut: string): "default" | "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired" | "honored" | "disputed" {
+  const map: Record<string, "default" | "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired" | "honored" | "disputed"> = {
+    PENDING: "pending",
+    SENT: "sent",
+    VIEWED: "viewed",
+    ACCEPTED: "accepted",
+    REJECTED: "rejected",
+    EXPIRED: "expired",
+    HONORED: "honored",
+    DISPUTED: "disputed",
+  };
+  return map[statut] ?? "default";
+}
