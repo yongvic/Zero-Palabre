@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
-import { AccordCard } from "@/components/accord/accord-card";
+import { AccordList } from "@/components/accord/accord-list";
 import { EmptyAccords } from "@/components/accord/empty-accords";
 
 export default async function AccordsPage() {
@@ -26,31 +26,41 @@ export default async function AccordsPage() {
   });
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-heading-xl text-neutral-900">Mes accords</h1>
-          <p className="mt-1 text-sm text-neutral-600">
-            {accords.length} accord{accords.length !== 1 ? "s" : ""}
+    <div className="space-y-10">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-extrabold tracking-tighter text-neutral-950 sm:text-4xl">
+            Mes accords
+          </h1>
+          <p className="text-base text-neutral-500">
+            Gérez vos engagements et suivez vos preuves numériques.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/accords/nouveau">
-            <Plus className="h-5 w-5" strokeWidth={1.5} />
-            Nouvel accord
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="hidden flex-col items-end px-4 text-right sm:flex">
+            <span className="text-2xl font-bold tracking-tight text-primary-700">
+              {accords.length}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+              Total actifs
+            </span>
+          </div>
+          <Button asChild size="lg" className="rounded-xl shadow-lg shadow-primary-700/10">
+            <Link href="/accords/nouveau">
+              <Plus className="h-5 w-5" strokeWidth={2.5} />
+              Nouvel accord
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {accords.length === 0 ? (
         <EmptyAccords />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {accords.map((accord) => (
-            <AccordCard key={accord.id} accord={accord} currentUserId={userId} />
-          ))}
-        </div>
+        <AccordList accords={accords} userId={userId} />
       )}
     </div>
   );
 }
+
+

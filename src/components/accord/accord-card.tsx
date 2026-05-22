@@ -1,10 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { Accord } from "@/types/database";
 import { Badge, statutToBadgeVariant } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ACCORD_STATUT_LABELS, ACCORD_TYPE_LABELS } from "@/lib/constants";
 import { formatDate, formatMontant } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Calendar, User as UserIcon } from "lucide-react";
 
 export function AccordCard({
   accord,
@@ -14,40 +17,67 @@ export function AccordCard({
   currentUserId?: string;
 }) {
   const isInitiator = !currentUserId || accord.initiateurId === currentUserId;
-  const roleText = isInitiator
-    ? `Dest. : ${accord.destinataireNom}`
-    : `Par : ${accord.initiateur?.name ?? "Utilisateur"}`;
+  const partnerName = isInitiator
+    ? accord.destinataireNom
+    : (accord.initiateur?.name ?? "Utilisateur");
 
   return (
-    <Link href={`/accords/${accord.id}`}>
-      <Card interactive className="block">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge variant={statutToBadgeVariant(accord.statut)}>
-                {ACCORD_STATUT_LABELS[accord.statut] ?? accord.statut}
-              </Badge>
-              <span className="text-xs text-neutral-500">{accord.reference}</span>
-            </div>
-            <h3 className="truncate font-semibold text-neutral-900">{accord.titre}</h3>
-            <p className="mt-1 text-sm text-neutral-600">
-              {ACCORD_TYPE_LABELS[accord.type]} · {roleText}
-            </p>
-            <p className="mt-2 text-sm font-medium text-primary-800">
-              {formatMontant(
-                accord.montant ? Number(accord.montant) : null,
-                accord.devise
-              )}
-              {accord.dateEcheance && (
-                <span className="ml-2 font-normal text-neutral-500">
-                  · échéance {formatDate(accord.dateEcheance)}
-                </span>
-              )}
-            </p>
+    <Link href={`/accords/${accord.id}`} className="group">
+      <Card interactive className="p-0 overflow-hidden border-neutral-200/50 shadow-sm hover:shadow-premium">
+        <div className="p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <Badge variant={statutToBadgeVariant(accord.statut)}>
+              {ACCORD_STATUT_LABELS[accord.statut] ?? accord.statut}
+            </Badge>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+              {accord.reference}
+            </span>
           </div>
-          <ChevronRight className="h-5 w-5 shrink-0 text-neutral-400" strokeWidth={1.5} />
+
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold tracking-tight text-neutral-900 group-hover:text-primary-700 transition-colors">
+              {accord.titre}
+            </h3>
+            <div className="flex items-center gap-2 text-sm text-neutral-500">
+              <span className="font-medium text-neutral-700">{ACCORD_TYPE_LABELS[accord.type]}</span>
+              <span>·</span>
+              <div className="flex items-center gap-1.5">
+                <UserIcon className="h-3.5 w-3.5" />
+                <span className="truncate max-w-[120px]">{partnerName}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-end justify-between">
+            <div className="space-y-1">
+              <p className="font-mono text-xl font-bold tracking-tight text-primary-700">
+                {formatMontant(
+                  accord.montant ? Number(accord.montant) : null,
+                  accord.devise
+                )}
+              </p>
+              {accord.dateEcheance && (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-400">
+                  <Calendar className="h-3 w-3" />
+                  <span>Échéance {formatDate(accord.dateEcheance)}</span>
+                </div>
+              )}
+            </div>
+            <div className="rounded-full bg-neutral-50 p-2 text-neutral-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
+              <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+            </div>
+          </div>
         </div>
+        
+        {/* Visual accent - subtle bottom bar */}
+        <div className={cn(
+          "h-1 w-full opacity-20",
+          accord.statut === 'ACCEPTED' ? "bg-success-600" :
+          accord.statut === 'PENDING' ? "bg-amber-500" :
+          "bg-primary-600"
+        )} />
       </Card>
     </Link>
   );
 }
+

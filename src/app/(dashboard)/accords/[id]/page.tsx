@@ -7,10 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   ACCORD_STATUT_LABELS,
-  ACCORD_TYPE_LABELS,
 } from "@/lib/constants";
 import { formatDate, formatDateTime, formatMontant } from "@/lib/utils";
-import { Download, ExternalLink } from "lucide-react";
+import { Download, ExternalLink, Calendar, User, FileText, ChevronLeft, ShieldCheck } from "lucide-react";
 
 export default async function AccordDetailPage({
   params,
@@ -37,69 +36,174 @@ export default async function AccordDetailPage({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Badge variant={statutToBadgeVariant(accord.statut)} className="mb-2">
-            {ACCORD_STATUT_LABELS[accord.statut]}
-          </Badge>
-          <h1 className="text-heading-xl text-neutral-900">{accord.titre}</h1>
-          <p className="text-sm text-neutral-500">{accord.reference}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
+    <div className="mx-auto max-w-4xl space-y-10">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <Link 
+          href="/accords" 
+          className="inline-flex items-center gap-2 text-sm font-bold text-neutral-400 hover:text-primary-700 transition-colors group"
+        >
+          <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+          Retour à la liste
+        </Link>
+        <div className="flex flex-wrap gap-3">
           {accord.statut === "ACCEPTED" && (
-            <Button variant="secondary" asChild>
+            <Button variant="secondary" asChild className="rounded-xl shadow-sm">
               <a href={`/api/accords/${accord.id}/pdf`} target="_blank" rel="noopener">
-                <Download className="h-4 w-4" strokeWidth={1.5} />
-                PDF
+                <Download className="h-4 w-4 mr-2" strokeWidth={2.5} />
+                Télécharger le PDF
               </a>
             </Button>
           )}
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="rounded-xl">
             <Link href={`/verifier/${accord.publicToken}`} target="_blank">
-              <ExternalLink className="h-4 w-4" strokeWidth={1.5} />
-              Vérifier
+              <ExternalLink className="h-4 w-4 mr-2" strokeWidth={2.5} />
+              Lien de vérification
             </Link>
           </Button>
         </div>
       </div>
 
-      <Card className="mb-6 space-y-3 text-sm">
-        <p><span className="text-neutral-500">Type :</span> {ACCORD_TYPE_LABELS[accord.type]}</p>
-        <p><span className="text-neutral-500">Destinataire :</span> {accord.destinataireNom} — {accord.destinataireEmail}</p>
-        {accord.montant && (
-          <p className="font-medium text-primary-800">
-            {formatMontant(Number(accord.montant), accord.devise)}
-          </p>
-        )}
-        {accord.dateEcheance && (
-          <p>Échéance : {formatDate(accord.dateEcheance)}</p>
-        )}
-        <p className="whitespace-pre-wrap leading-relaxed">{accord.description}</p>
-      </Card>
+      <div className="grid gap-10 lg:grid-cols-12 items-start">
+        {/* Main Document Content */}
+        <div className="lg:col-span-8">
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-neutral-200 bg-neutral-0 p-8 md:p-12 shadow-paper bg-paper">
+             <div className="watermark-seal" />
+             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary-700 to-amber-500" />
+             
+             <div className="relative z-10 space-y-10">
+                <div className="flex flex-col gap-6 sm:flex-row sm:justify-between sm:items-start pb-8 border-b border-neutral-100">
+                  <div className="space-y-4">
+                    <Badge variant={statutToBadgeVariant(accord.statut)} className="h-7 px-4">
+                      {ACCORD_STATUT_LABELS[accord.statut]}
+                    </Badge>
+                    <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-neutral-950">
+                      {accord.titre}
+                    </h1>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono text-[11px] font-black uppercase tracking-widest text-neutral-400 bg-neutral-50 px-3 py-1.5 rounded-full border border-neutral-200">
+                      {accord.reference}
+                    </p>
+                  </div>
+                </div>
 
-      <h2 className="mb-4 text-lg font-semibold">Historique</h2>
-      <ul className="space-y-3">
-        {accord.historique.map((ev) => (
-          <li
-            key={ev.id}
-            className="flex items-center justify-between rounded-md border border-neutral-150 bg-neutral-0 px-4 py-3 text-sm"
-          >
-            <span className="font-medium">{ev.type}</span>
-            <span className="text-neutral-500">{formatDateTime(ev.createdAt)}</span>
-          </li>
-        ))}
-      </ul>
+                <div className="grid gap-8 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Parties concernées</span>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-neutral-900">{accord.initiateur?.name}</p>
+                          <p className="text-[11px] font-medium text-neutral-500 italic">Initiateur</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-600">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-neutral-900">{accord.destinataireNom}</p>
+                          <p className="text-[11px] font-medium text-neutral-500 italic">Destinataire</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-      <p className="mt-8 text-sm text-neutral-500">
-        Lien de validation :{" "}
-        <a
-          href={`${baseUrl}/valider/${accord.publicToken}`}
-          className="text-primary-800 underline"
-        >
-          {baseUrl}/valider/{accord.publicToken}
-        </a>
-      </p>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Conditions financières</span>
+                      <p className="font-mono text-2xl font-black text-primary-700">
+                        {formatMontant(accord.montant ? Number(accord.montant) : null, accord.devise)}
+                      </p>
+                    </div>
+                    {accord.dateEcheance && (
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Échéance finale</span>
+                        <div className="flex items-center gap-2 text-sm font-bold text-neutral-900">
+                          <Calendar className="h-4 w-4 text-neutral-400" />
+                          {formatDate(accord.dateEcheance)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-neutral-100">
+                    <FileText className="h-4 w-4 text-neutral-400" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Description & Termes</span>
+                  </div>
+                  <div className="prose prose-neutral max-w-none">
+                    <p className="text-base leading-relaxed text-neutral-800 whitespace-pre-wrap font-medium">
+                      {accord.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-10 flex items-center justify-center">
+                   <div className="flex flex-col items-center gap-3">
+                      <ShieldCheck className="h-12 w-12 text-primary-700/20" />
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 text-center">
+                        Document certifié par Zéro-Palabre <br /> 
+                        Hash: {accord.id.slice(0, 8)}...{accord.id.slice(-8)}
+                      </p>
+                   </div>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        {/* Sidebar Info */}
+        <div className="lg:col-span-4 space-y-8">
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold tracking-tight text-neutral-950 px-1">Historique de l&apos;accord</h2>
+            <div className="space-y-3">
+              {accord.historique.map((ev, idx) => (
+                <div
+                  key={ev.id}
+                  className="relative pl-6 pb-6 last:pb-0 group"
+                >
+                  {idx !== accord.historique.length - 1 && (
+                    <div className="absolute left-2 top-2 bottom-0 w-px bg-neutral-200 group-last:hidden" />
+                  )}
+                  <div className="absolute left-0 top-1.5 h-4 w-4 rounded-full border-2 border-neutral-200 bg-neutral-0 group-first:border-primary-600 group-first:bg-primary-50" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-neutral-900">{ev.type}</p>
+                    <p className="text-[11px] font-medium text-neutral-500">{formatDateTime(ev.createdAt)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Card className="bg-primary-50 border-primary-100 p-6 space-y-4 rounded-3xl">
+             <div className="space-y-2">
+               <h3 className="text-sm font-bold text-primary-900">Validation Destinataire</h3>
+               <p className="text-xs leading-relaxed text-primary-800/70 font-medium">
+                 Partagez ce lien unique avec votre destinataire pour qu&apos;il puisse valider numériquement cet accord.
+               </p>
+             </div>
+             <div className="relative group">
+               <div className="bg-neutral-0 border border-primary-200 rounded-xl p-3 font-mono text-[11px] text-primary-700 truncate group-hover:bg-primary-50 transition-colors">
+                  {baseUrl}/valider/{accord.publicToken}
+               </div>
+               <button 
+                 onClick={() => {
+                   navigator.clipboard.writeText(`${baseUrl}/valider/${accord.publicToken}`);
+                   // toast notification would be good here
+                 }}
+                 className="mt-3 w-full text-center text-xs font-bold text-primary-700 hover:text-primary-900 transition-colors"
+               >
+                 Copier le lien sécurisé
+               </button>
+             </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
+

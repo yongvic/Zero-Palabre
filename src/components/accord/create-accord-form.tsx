@@ -9,19 +9,16 @@ import {
   ShoppingCart,
   Wrench,
   User,
-  Mail,
-  FileText,
-  Calendar,
-  DollarSign,
   Check,
   ChevronRight,
   ChevronLeft,
   ShieldCheck,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { CreateAccordInput } from "@/lib/validations/accord";
 
@@ -33,7 +30,7 @@ const TYPES = [
   { id: "AUTRE", label: "Autre accord", icon: Package, desc: "Tout autre engagement verbal ou promesse formelle à sceller." },
 ] as const;
 
-const STEPS = ["Type d'accord", "Parties concernées", "Détails & termes", "Aperçu final"];
+const STEPS = ["Type d'accord", "Parties", "Détails & termes", "Aperçu final"];
 
 export function CreateAccordForm({
   initiateurName,
@@ -81,422 +78,280 @@ export function CreateAccordForm({
     return true;
   };
 
+  const nextStep = () => isStepValid() && setStep((s) => s + 1);
+  const prevStep = () => setStep((s) => s - 1);
+
   return (
-    <div className="space-y-8">
-      {/* 1. Stepper Responsive Ultra Premium */}
+    <div className="space-y-12">
+      {/* Stepper Logic */}
       <div className="relative">
-        {/* Stepper complet pour Desktop & Tablette */}
-        <div className="hidden md:flex items-center justify-between relative z-10">
+        <div className="flex items-center justify-between relative">
           {STEPS.map((s, i) => (
-            <div key={s} className="flex flex-col items-center flex-1 relative">
-              {/* Ligne de liaison entre les étapes */}
-              {i < STEPS.length - 1 && (
-                <div 
-                  className={cn(
-                    "absolute top-5 left-[50%] right-[-50%] h-[2px] z-[-1] transition-colors duration-300",
-                    i < step ? "bg-primary-600" : "bg-neutral-200"
-                  )}
-                />
-              )}
-              
+            <div key={s} className="flex flex-col items-center flex-1 relative z-10">
               <button
                 type="button"
                 onClick={() => i < step && setStep(i)}
-                disabled={i >= step}
+                disabled={i > step}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full border-2 font-bold text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-800/30",
+                  "flex h-10 w-10 items-center justify-center rounded-full border-2 font-bold text-sm transition-all duration-300",
                   i === step
-                    ? "border-primary-800 bg-primary-800 text-neutral-0 shadow-md scale-110"
+                    ? "border-primary-700 bg-primary-700 text-neutral-0 shadow-lg scale-110"
                     : i < step
-                      ? "border-primary-600 bg-primary-50 text-primary-800 cursor-pointer hover:bg-primary-100"
+                      ? "border-primary-600 bg-primary-50 text-primary-700 hover:bg-primary-100"
                       : "border-neutral-200 bg-neutral-0 text-neutral-400 cursor-not-allowed"
                 )}
               >
-                {i < step ? (
-                  <Check className="h-4.5 w-4.5" strokeWidth={3} />
-                ) : (
-                  <span>{i + 1}</span>
-                )}
+                {i < step ? <Check className="h-5 w-5" strokeWidth={3} /> : <span>{i + 1}</span>}
               </button>
-              
-              <span 
-                className={cn(
-                  "mt-3 text-xs font-semibold tracking-tight transition-colors duration-300",
-                  i === step ? "text-primary-800" : i < step ? "text-neutral-700" : "text-neutral-400"
-                )}
-              >
+              <span className={cn(
+                "mt-3 text-[10px] font-black uppercase tracking-[0.1em] transition-colors duration-300 hidden md:block",
+                i <= step ? "text-neutral-900" : "text-neutral-300"
+              )}>
                 {s}
               </span>
             </div>
           ))}
-        </div>
-
-        {/* Stepper compact pour Mobile */}
-        <div className="md:hidden">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-primary-800">
-              Étape {step + 1} sur 4
-            </span>
-            <span className="text-sm font-bold text-neutral-900">
-              {STEPS[step]}
-            </span>
-          </div>
-          {/* Barre de progression fluide */}
-          <div className="h-2 w-full rounded-full bg-neutral-200 overflow-hidden">
-            <div 
-              className="h-full bg-primary-800 transition-all duration-300 ease-out"
-              style={{ width: `${((step + 1) / 4) * 100}%` }}
-            />
-          </div>
+          {/* Progress Line */}
+          <div className="absolute top-5 left-0 w-full h-[2px] bg-neutral-100 -z-0" />
+          <motion.div 
+            initial={false}
+            animate={{ width: `${(step / (STEPS.length - 1)) * 100}%` }}
+            className="absolute top-5 left-0 h-[2px] bg-primary-600 -z-0" 
+          />
         </div>
       </div>
 
-      {/* 2. Contenu des Étapes de Formulaire */}
-      <div className="min-h-[280px]">
-        {/* ÉTAPE 0 : Choix du type (Grille interactive de cartes premium) */}
-        {step === 0 && (
-          <div className="space-y-4">
-            <div className="text-center md:text-left mb-6">
-              <h3 className="text-base font-bold text-neutral-900">De quel type d&apos;engagement s&apos;agit-il ?</h3>
-              <p className="text-xs text-neutral-500 mt-1">Sélectionnez le type d&apos;accord pour structurer convenablement la preuve numérique.</p>
-            </div>
-            
-            <div className="grid gap-4 sm:grid-cols-2">
-              {TYPES.map((t) => {
-                const IconComponent = t.icon;
-                const isSelected = data.type === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setData({ ...data, type: t.id })}
-                    className={cn(
-                      "group relative flex items-start gap-4 rounded-xl border p-5 text-left transition-all duration-200 hover:-translate-y-0.5 shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-800/30",
-                      isSelected
-                        ? "border-primary-800 bg-primary-50/40 ring-1 ring-primary-800"
-                        : "border-neutral-200 bg-neutral-0 hover:border-neutral-300"
-                    )}
-                  >
-                    <div className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-200",
-                      isSelected ? "bg-primary-800 text-neutral-0" : "bg-neutral-100 text-neutral-600 group-hover:bg-primary-50 group-hover:text-primary-800"
-                    )}>
-                      <IconComponent className="h-6 w-6" strokeWidth={1.5} />
+      {/* Form Content */}
+      <div className="relative overflow-hidden min-h-[400px]">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            {step === 0 && (
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold tracking-tight text-neutral-900">Type d&apos;engagement</h3>
+                  <p className="text-sm text-neutral-500 font-medium">Sélectionnez la catégorie qui correspond le mieux à votre accord.</p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {TYPES.map((t) => {
+                    const Icon = t.icon;
+                    const selected = data.type === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setData({ ...data, type: t.id })}
+                        className={cn(
+                          "group relative flex items-start gap-4 rounded-[1.5rem] border p-6 text-left transition-all hover:shadow-md",
+                          selected 
+                            ? "border-primary-600 bg-primary-50/30 ring-1 ring-primary-600" 
+                            : "border-neutral-200 bg-neutral-0 hover:border-primary-200"
+                        )}
+                      >
+                        <div className={cn(
+                          "h-12 w-12 shrink-0 rounded-2xl flex items-center justify-center transition-colors",
+                          selected ? "bg-primary-700 text-neutral-0" : "bg-neutral-100 text-neutral-500 group-hover:bg-primary-50 group-hover:text-primary-700"
+                        )}>
+                          <Icon className="h-6 w-6" strokeWidth={1.5} />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="font-bold text-neutral-900">{t.label}</p>
+                          <p className="text-xs font-medium text-neutral-500 leading-relaxed">{t.desc}</p>
+                        </div>
+                        {selected && (
+                          <div className="absolute top-4 right-4 h-6 w-6 rounded-full bg-primary-700 text-neutral-0 flex items-center justify-center">
+                            <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="space-y-8">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold tracking-tight text-neutral-900">Parties concernées</h3>
+                  <p className="text-sm text-neutral-500 font-medium">Qui scelle cet accord avec vous ?</p>
+                </div>
+                <div className="grid gap-6">
+                  <div className="p-5 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500">
+                      <User className="h-5 w-5" />
                     </div>
-                    <div className="space-y-1 pr-4">
-                      <span className="block text-sm font-bold text-neutral-900">{t.label}</span>
-                      <span className="block text-xs leading-relaxed text-neutral-500">{t.desc}</span>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest text-neutral-400">Initiateur (Vous)</p>
+                      <p className="text-sm font-bold text-neutral-900">{initiateurName} · {initiateurEmail}</p>
                     </div>
-                    {isSelected && (
-                      <div className="absolute top-4 right-4 flex h-5 w-5 items-center justify-center rounded-full bg-primary-800 text-neutral-0">
-                        <Check className="h-3 w-3" strokeWidth={3} />
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ÉTAPE 1 : Parties concernées (Inputs aérés avec icônes) */}
-        {step === 1 && (
-          <Card className="p-6 md:p-8 space-y-6 rounded-2xl border border-neutral-150 shadow-sm bg-neutral-0">
-            <div className="border-b border-neutral-100 pb-4">
-              <h3 className="text-base font-bold text-neutral-900">Les parties contractantes</h3>
-              <p className="text-xs text-neutral-500 mt-1">Saisissez l&apos;identité et les coordonnées sécurisées du destinataire.</p>
-            </div>
-
-            <div className="grid gap-6">
-              {/* Initiateur (Lecture seule premium) */}
-              <div className="rounded-xl border border-neutral-100 bg-neutral-50/70 p-4">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Initiateur de l&apos;accord (Vous)</span>
-                <div className="mt-2 flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-200 text-neutral-600">
-                    <User className="h-4.5 w-4.5" strokeWidth={1.5} />
                   </div>
-                  <div>
-                    <span className="block text-sm font-bold text-neutral-900">{initiateurName}</span>
-                    <span className="block text-xs text-neutral-500 font-mono mt-0.5">{initiateurEmail}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Nom du destinataire */}
-              <div className="space-y-2">
-                <Label htmlFor="destinataireNom" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                  Nom du destinataire *
-                </Label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-neutral-400">
-                    <User className="h-4.5 w-4.5" strokeWidth={1.5} />
-                  </div>
-                  <Input
-                    id="destinataireNom"
-                    placeholder="Ex: Koffi Mensah"
-                    className="min-h-[48px] pl-11 rounded-xl border-[1.5px] border-neutral-200 text-[15px] focus:border-primary-800 focus:shadow-focus-primary focus:outline-none placeholder:text-neutral-400 transition-all"
-                    value={data.destinataireNom ?? ""}
-                    onChange={(e) => setData({ ...data, destinataireNom: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Email du destinataire */}
-              <div className="space-y-2">
-                <Label htmlFor="destinataireEmail" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                  Email du destinataire *
-                </Label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-neutral-400">
-                    <Mail className="h-4.5 w-4.5" strokeWidth={1.5} />
-                  </div>
-                  <Input
-                    id="destinataireEmail"
-                    type="email"
-                    placeholder="Ex: koffi.mensah@email.com"
-                    className="min-h-[48px] pl-11 rounded-xl border-[1.5px] border-neutral-200 text-[15px] focus:border-primary-800 focus:shadow-focus-primary focus:outline-none placeholder:text-neutral-400 transition-all"
-                    value={data.destinataireEmail ?? ""}
-                    onChange={(e) => setData({ ...data, destinataireEmail: e.target.value })}
-                  />
-                </div>
-                <p className="text-[10px] text-neutral-400 italic">
-                  Un lien sécurisé unique lui sera transmis par email pour valider numériquement l&apos;accord.
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* ÉTAPE 2 : Détails & termes (Formulaire aéré, sélections de devises) */}
-        {step === 2 && (
-          <Card className="p-6 md:p-8 space-y-6 rounded-2xl border border-neutral-150 shadow-sm bg-neutral-0">
-            <div className="border-b border-neutral-100 pb-4">
-              <h3 className="text-base font-bold text-neutral-900">Termes et détails financiers</h3>
-              <p className="text-xs text-neutral-500 mt-1">Formalisez de manière claire les modalités de cet accord numérique.</p>
-            </div>
-
-            <div className="grid gap-5">
-              {/* Titre de l'accord */}
-              <div className="space-y-2">
-                <Label htmlFor="titre" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                  Titre de l&apos;accord *
-                </Label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-neutral-400">
-                    <FileText className="h-4.5 w-4.5" strokeWidth={1.5} />
-                  </div>
-                  <Input
-                    id="titre"
-                    placeholder="Ex: Remboursement du prêt pour matériel photo"
-                    className="min-h-[48px] pl-11 rounded-xl border-[1.5px] border-neutral-200 text-[15px] focus:border-primary-800 focus:shadow-focus-primary focus:outline-none placeholder:text-neutral-400 transition-all animate-none"
-                    value={data.titre ?? ""}
-                    onChange={(e) => setData({ ...data, titre: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Ligne : Montant & Devise */}
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="montant" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                    Montant (optionnel)
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-neutral-400">
-                      <DollarSign className="h-4.5 w-4.5" strokeWidth={1.5} />
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="destinataireNom" className="text-xs font-black uppercase tracking-widest text-neutral-500">Nom du partenaire</Label>
+                      <Input
+                        id="destinataireNom"
+                        placeholder="Ex: Koffi Mensah"
+                        className="h-14 rounded-2xl text-lg font-bold px-6"
+                        value={data.destinataireNom ?? ""}
+                        onChange={(e) => setData({ ...data, destinataireNom: e.target.value })}
+                      />
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="destinataireEmail" className="text-xs font-black uppercase tracking-widest text-neutral-500">Email du partenaire</Label>
+                      <Input
+                        id="destinataireEmail"
+                        type="email"
+                        placeholder="koffi.m@email.com"
+                        className="h-14 rounded-2xl text-lg font-bold px-6 font-mono"
+                        value={data.destinataireEmail ?? ""}
+                        onChange={(e) => setData({ ...data, destinataireEmail: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-8">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold tracking-tight text-neutral-900">Termes de l&apos;accord</h3>
+                  <p className="text-sm text-neutral-500 font-medium">Définissez précisément les modalités de votre engagement.</p>
+                </div>
+                <div className="grid gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="titre" className="text-xs font-black uppercase tracking-widest text-neutral-500">Objet de l&apos;accord</Label>
                     <Input
-                      id="montant"
-                      type="number"
-                      min={0}
-                      placeholder="Ex: 150000"
-                      className="min-h-[48px] pl-11 rounded-xl border-[1.5px] border-neutral-200 text-[15px] focus:border-primary-800 focus:shadow-focus-primary focus:outline-none placeholder:text-neutral-400 transition-all"
-                      value={data.montant ?? ""}
-                      onChange={(e) =>
-                        setData({
-                          ...data,
-                          montant: e.target.value ? Number(e.target.value) : undefined,
-                        })
-                      }
+                      id="titre"
+                      placeholder="Ex: Remboursement prêt moto"
+                      className="h-14 rounded-2xl text-lg font-bold px-6"
+                      value={data.titre ?? ""}
+                      onChange={(e) => setData({ ...data, titre: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="montant" className="text-xs font-black uppercase tracking-widest text-neutral-500">Montant (FCFA)</Label>
+                      <Input
+                        id="montant"
+                        type="number"
+                        placeholder="150 000"
+                        className="h-14 rounded-2xl text-lg font-bold px-6 font-mono"
+                        value={data.montant ?? ""}
+                        onChange={(e) => setData({ ...data, montant: e.target.value ? Number(e.target.value) : undefined })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dateEcheance" className="text-xs font-black uppercase tracking-widest text-neutral-500">Échéance</Label>
+                      <Input
+                        id="dateEcheance"
+                        type="date"
+                        className="h-14 rounded-2xl text-lg font-bold px-6"
+                        value={data.dateEcheance ?? ""}
+                        onChange={(e) => setData({ ...data, dateEcheance: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="text-xs font-black uppercase tracking-widest text-neutral-500">Description détaillée</Label>
+                    <textarea
+                      id="description"
+                      rows={5}
+                      placeholder="Décrivez ici les détails, conditions de remboursement, pénalités..."
+                      className="w-full rounded-3xl border border-neutral-200 p-6 text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition-all"
+                      value={data.description ?? ""}
+                      onChange={(e) => setData({ ...data, description: e.target.value })}
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="devise" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                    Devise
-                  </Label>
-                  <select
-                    id="devise"
-                    className="flex h-12 w-full rounded-xl border-[1.5px] border-neutral-200 px-3.5 text-[15px] font-semibold bg-neutral-0 focus:border-primary-800 focus:shadow-focus-primary focus:outline-none transition-all cursor-pointer"
-                    value={data.devise ?? "FCFA"}
-                    onChange={(e) =>
-                      setData({
-                        ...data,
-                        devise: e.target.value as "FCFA" | "EUR" | "USD",
-                      })
-                    }
-                  >
-                    <option value="FCFA">FCFA (CFA)</option>
-                    <option value="EUR">EUR (€)</option>
-                    <option value="USD">USD ($)</option>
-                  </select>
-                </div>
               </div>
+            )}
 
-              {/* Date d'échéance */}
-              <div className="space-y-2">
-                <Label htmlFor="dateEcheance" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                  Date d&apos;échéance (optionnelle)
-                </Label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-neutral-400">
-                    <Calendar className="h-4.5 w-4.5" strokeWidth={1.5} />
-                  </div>
-                  <Input
-                    id="dateEcheance"
-                    type="date"
-                    className="min-h-[48px] pl-11 rounded-xl border-[1.5px] border-neutral-200 text-[15px] focus:border-primary-800 focus:shadow-focus-primary focus:outline-none transition-all cursor-pointer"
-                    value={data.dateEcheance ?? ""}
-                    onChange={(e) => setData({ ...data, dateEcheance: e.target.value || undefined })}
-                  />
+            {step === 3 && (
+              <div className="space-y-8">
+                <div className="space-y-1 text-center">
+                  <h3 className="text-2xl font-black tracking-tighter text-neutral-900">Aperçu avant scellage.</h3>
+                  <p className="text-sm text-neutral-500 font-medium">Vérifiez scrupuleusement les informations avant l&apos;envoi.</p>
                 </div>
-              </div>
-
-              {/* Description détaillée */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider text-neutral-600">
-                    Description et termes détaillés *
-                  </Label>
-                  {data.description && (
-                    <span className={cn(
-                      "text-[10px] font-bold tracking-tight",
-                      data.description.length >= 20 ? "text-success-800 bg-success-50 px-2 py-0.5 rounded" : "text-error-600"
-                    )}>
-                      {data.description.length} car. (min 20)
-                    </span>
-                  )}
-                </div>
-                <textarea
-                  id="description"
-                  placeholder="Décrivez de manière claire et non-équivoque les termes de votre accord (Ex: remboursement en 3 traites égales, pénalités de retard, matériel restitué en l'état...)"
-                  className="min-h-[140px] w-full resize-y rounded-xl border-[1.5px] border-neutral-200 px-4 py-3 text-[15px] leading-relaxed focus:border-primary-800 focus:shadow-focus-primary focus:outline-none transition-all placeholder:text-neutral-400"
-                  value={data.description ?? ""}
-                  onChange={(e) => setData({ ...data, description: e.target.value })}
-                />
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* ÉTAPE 3 : Aperçu final format document scellé */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="text-center md:text-left mb-4">
-              <h3 className="text-base font-bold text-neutral-900">Aperçu en temps réel de votre accord</h3>
-              <p className="text-xs text-neutral-500 mt-1">Voici le document numérique tel qu&apos;il apparaîtra à votre destinataire pour sa signature numérique.</p>
-            </div>
-
-            {/* Document scellé virtuel */}
-            <div className="relative overflow-hidden rounded-2xl border border-neutral-150 bg-paper shadow-paper p-6 md:p-8">
-              <div className="watermark-seal" />
-              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary-800 to-amber-600" />
-              
-              <div className="relative z-10 space-y-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start border-b border-neutral-100 pb-4">
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase border border-amber-200">
-                      En attente de signature
-                    </span>
-                    <h4 className="text-lg font-extrabold text-neutral-950 mt-2 tracking-tight">
-                      {data.titre || "Accord sans titre"}
-                    </h4>
-                  </div>
-                  <span className="text-[10px] font-mono text-neutral-400 bg-neutral-50 border border-neutral-150 px-2.5 py-1 rounded-full self-start">
-                    ZP-2026-Nouveau
-                  </span>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg bg-neutral-50/50 border border-neutral-100 p-3 text-xs">
-                    <span className="block font-bold text-neutral-500 uppercase tracking-wider text-[9px]">Créé par (Initiateur)</span>
-                    <span className="block font-bold text-neutral-900 mt-1">{initiateurName}</span>
-                    <span className="block text-neutral-400 font-mono text-[10px] mt-0.5">{initiateurEmail}</span>
-                  </div>
-                  <div className="rounded-lg bg-neutral-50/50 border border-neutral-100 p-3 text-xs">
-                    <span className="block font-bold text-neutral-500 uppercase tracking-wider text-[9px]">Destiné à (Signataire)</span>
-                    <span className="block font-bold text-neutral-900 mt-1">{data.destinataireNom || "Non spécifié"}</span>
-                    <span className="block text-neutral-400 font-mono text-[10px] mt-0.5">{data.destinataireEmail || "Non spécifié"}</span>
-                  </div>
-                </div>
-
-                {data.montant && (
-                  <div className="rounded-lg bg-primary-50/30 border border-primary-100 p-4 text-center md:text-left">
-                    <span className="block font-bold text-primary-800 uppercase tracking-wider text-[9px] mb-1">Engagement financier total</span>
-                    <span className="text-2xl font-black text-primary-800">
-                      {Number(data.montant).toLocaleString()} {data.devise}
-                    </span>
-                    {data.dateEcheance && (
-                      <span className="block text-[11px] font-semibold text-neutral-600 mt-1 bg-neutral-0/80 px-2 py-0.5 rounded border border-neutral-150 w-fit">
-                        Échéance fixée au : {new Date(data.dateEcheance).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <span className="block font-bold text-neutral-500 uppercase tracking-wider text-[9px] pb-1 border-b border-neutral-100">
-                    Termes contractuels
-                  </span>
-                  <div className="bg-neutral-0/60 p-4 rounded-xl border border-neutral-100 text-[13.5px] leading-relaxed text-neutral-800 whitespace-pre-wrap min-h-[80px]">
-                    {data.description || "Aucune description détaillée n'a été saisie."}
+                <div className="relative bg-paper rounded-[2rem] border border-neutral-200 p-8 shadow-paper overflow-hidden">
+                  <div className="watermark-seal opacity-[0.03]" />
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex justify-between items-start pb-6 border-b border-neutral-100">
+                      <div>
+                        <Badge variant="pending">En attente de signature</Badge>
+                        <h4 className="text-2xl font-black text-neutral-950 mt-3">{data.titre}</h4>
+                      </div>
+                      <p className="font-mono text-xs font-bold text-neutral-400">REFERENCE: ZP-2026-TEMP</p>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2 text-sm font-medium">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Initiateur</p>
+                        <p className="text-neutral-900">{initiateurName}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Destinataire</p>
+                        <p className="text-neutral-900">{data.destinataireNom}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Montant de l&apos;accord</p>
+                      <p className="text-3xl font-black text-primary-700 font-mono">
+                        {data.montant?.toLocaleString()} {data.devise}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {error && (
-        <div className="page-enter rounded-xl border border-error-100 bg-error-50/50 p-4 text-sm font-semibold text-error-800 flex items-center gap-2">
-          ⚠️ {error}
-        </div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-xl bg-error-600/10 border border-error-600/20 text-error-600 text-sm font-bold">
+          {error}
+        </motion.div>
       )}
 
-      {/* 3. Boutons de navigation (Touch targets robustes) */}
-      <div className="flex justify-between items-center pt-6 border-t border-neutral-150">
+      {/* Navigation Buttons */}
+      <div className="flex justify-between items-center pt-8 border-t border-neutral-100">
         <Button
           variant="ghost"
           disabled={step === 0 || loading}
-          onClick={() => setStep((s) => s - 1)}
-          className="min-h-[46px] rounded-xl font-semibold gap-1.5"
+          onClick={prevStep}
+          className="rounded-xl h-12 px-6 font-bold text-neutral-500"
         >
-          <ChevronLeft className="h-5 w-5 shrink-0" strokeWidth={2} />
+          <ChevronLeft className="h-5 w-5 mr-2" />
           Retour
         </Button>
         
         {step < 3 ? (
           <Button 
-            onClick={() => setStep((s) => s + 1)}
+            onClick={nextStep}
             disabled={!isStepValid()}
-            className="min-h-[46px] rounded-xl font-bold tracking-tight bg-primary-800 hover:bg-primary-700 active:bg-primary-900 gap-1.5 transition-all shadow-sm"
+            className="rounded-xl h-12 px-8 font-black tracking-tight"
           >
-            Continuer
-            <ChevronRight className="h-5 w-5 shrink-0" strokeWidth={2} />
+            Suivant
+            <ChevronRight className="h-5 w-5 ml-2" />
           </Button>
         ) : (
           <Button 
             onClick={submit} 
             loading={loading}
-            className="min-h-[46px] rounded-xl font-bold tracking-tight bg-primary-800 hover:bg-primary-700 active:bg-primary-900 gap-2 transition-all shadow-sm"
+            className="rounded-xl h-12 px-10 font-black tracking-tight shadow-xl shadow-primary-700/20"
           >
-            <ShieldCheck className="h-5 w-5 shrink-0" strokeWidth={2} />
-            Envoyer et sceller l&apos;accord
+            <ShieldCheck className="h-5 w-5 mr-2" />
+            Sceller l&apos;accord
           </Button>
         )}
       </div>
     </div>
   );
 }
+

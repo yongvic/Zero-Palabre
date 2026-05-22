@@ -2,14 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "#fonctionnalites", label: "Fonctionnalités" },
-  { href: "#comment-ca-marche", label: "Comment ça marche" },
+  { href: "#comment-ca-marche", label: "Méthode" },
   { href: "#tarifs", label: "Tarifs" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -20,38 +21,47 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ dark = false }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b backdrop-blur-md",
-        dark
-          ? "border-neutral-800/60 bg-neutral-950/80"
-          : "border-neutral-150 bg-neutral-0/90"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+        scrolled
+          ? dark 
+            ? "border-neutral-800/50 bg-neutral-950/80 backdrop-blur-xl py-3" 
+            : "border-neutral-200/50 bg-neutral-0/80 backdrop-blur-xl py-3 shadow-premium"
+          : "border-transparent bg-transparent py-5"
       )}
     >
-      <div className="mx-auto flex h-14 max-w-container items-center justify-between px-4 md:h-16 md:px-10 lg:px-20">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10 lg:px-16">
+        <Link href="/" className="flex items-center gap-2 group">
           <Image
-            src="/brand/logo-vert.png"
+            src={dark ? "/brand/logo-blanc.png" : "/brand/logo-vert.png"}
             alt="Zéro-Palabre"
-            width={140}
-            height={36}
-            className="h-8 w-auto md:h-9"
+            width={120}
+            height={32}
+            className="h-8 w-auto transition-transform group-hover:scale-105"
             priority
           />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-10 lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors",
+                "text-[13px] font-bold uppercase tracking-widest transition-all hover:scale-105",
                 dark
-                  ? "text-neutral-300 hover:text-neutral-0"
-                  : "text-neutral-600 hover:text-primary-800"
+                  ? "text-neutral-400 hover:text-neutral-0"
+                  : "text-neutral-500 hover:text-primary-800"
               )}
             >
               {link.label}
@@ -59,58 +69,70 @@ export function SiteHeader({ dark = false }: SiteHeaderProps) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" asChild className={dark ? "text-neutral-300" : ""}>
+        <div className="hidden items-center gap-4 lg:flex">
+          <Button variant="ghost" asChild className={cn("rounded-xl font-bold", dark ? "text-neutral-300 hover:text-neutral-0 hover:bg-white/5" : "text-neutral-600")}>
             <Link href="/connexion">Connexion</Link>
           </Button>
-          <Button asChild>
-            <Link href="/inscription">Créer un accord</Link>
+          <Button asChild className="rounded-xl font-bold px-6 shadow-lg shadow-primary-700/10">
+            <Link href="/inscription">
+              Démarrer gratuitement
+            </Link>
           </Button>
         </div>
 
         <button
           type="button"
           className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-md md:hidden",
-            dark ? "text-neutral-0" : "text-neutral-900"
+            "flex h-10 w-10 items-center justify-center rounded-xl lg:hidden transition-colors",
+            dark ? "text-neutral-0 hover:bg-white/10" : "text-neutral-900 hover:bg-neutral-100"
           )}
           onClick={() => setOpen(!open)}
-          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-label={open ? "Fermer" : "Menu"}
         >
-          {open ? <X strokeWidth={1.5} /> : <Menu strokeWidth={1.5} />}
+          {open ? <X strokeWidth={2.5} /> : <Menu strokeWidth={2.5} />}
         </button>
       </div>
 
-      {open && (
-        <div
-          className={cn(
-            "border-t px-4 py-4 md:hidden",
-            dark ? "border-neutral-800 bg-neutral-950" : "border-neutral-150 bg-neutral-0"
-          )}
-        >
-          <nav className="flex flex-col gap-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "py-2 text-sm font-medium",
-                  dark ? "text-neutral-200" : "text-neutral-700"
-                )}
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link href="/connexion" className="py-2 text-sm font-medium text-primary-600">
-              Connexion
-            </Link>
-            <Button asChild className="w-full">
-              <Link href="/inscription">Créer un accord</Link>
-            </Button>
-          </nav>
-        </div>
-      )}
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className={cn(
+              "overflow-hidden lg:hidden border-t",
+              dark ? "bg-neutral-950 border-neutral-800" : "bg-neutral-0 border-neutral-100 shadow-xl"
+            )}
+          >
+            <nav className="flex flex-col gap-2 p-6">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center justify-between rounded-xl px-4 py-4 text-base font-bold transition-all active:scale-95",
+                    dark ? "text-neutral-200 active:bg-white/5" : "text-neutral-700 active:bg-neutral-50"
+                  )}
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                  <ArrowRight className="h-4 w-4 opacity-30" />
+                </Link>
+              ))}
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <Button variant="ghost" asChild className={cn("rounded-xl h-12 font-bold", dark ? "text-neutral-300 bg-white/5" : "bg-neutral-50")}>
+                  <Link href="/connexion">Connexion</Link>
+                </Button>
+                <Button asChild className="rounded-xl h-12 font-bold">
+                  <Link href="/inscription">S&apos;inscrire</Link>
+                </Button>
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
+

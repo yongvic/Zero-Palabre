@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -8,9 +10,9 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border border-neutral-150 bg-neutral-0 p-6 shadow-xs",
+      "rounded-xl border border-neutral-200/60 bg-neutral-0 p-6 shadow-sm transition-all duration-300",
       interactive &&
-        "transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-px hover:border-neutral-200 hover:shadow-md",
+        "hover:border-primary-200 hover:shadow-premium hover:-translate-y-0.5 active:scale-[0.99] cursor-pointer",
       className
     )}
     {...props}
@@ -22,7 +24,7 @@ const CardHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("mb-4 flex flex-col gap-1", className)} {...props} />
+  <div className={cn("mb-5 flex flex-col gap-1.5", className)} {...props} />
 );
 
 const CardTitle = ({
@@ -30,7 +32,7 @@ const CardTitle = ({
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) => (
   <h3
-    className={cn("text-lg font-semibold tracking-tight text-neutral-900", className)}
+    className={cn("text-lg font-bold tracking-tight text-neutral-900", className)}
     {...props}
   />
 );
@@ -39,7 +41,8 @@ const CardDescription = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) => (
-  <p className={cn("text-sm text-neutral-600", className)} {...props} />
+  <p className={cn("text-sm leading-relaxed text-neutral-500", className)} {...props} />
 );
 
 export { Card, CardHeader, CardTitle, CardDescription };
+

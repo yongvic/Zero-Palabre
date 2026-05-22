@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -8,253 +10,289 @@ import {
   Smartphone,
   Zap,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import Image from "next/image";
 
 const features = [
   {
     icon: Zap,
-    title: "Moins de 2 minutes",
+    title: "Vitesse d'exécution",
     description:
-      "Créez et envoyez un accord depuis votre smartphone, sans compétence juridique.",
+      "Formalisez vos accords en moins de 2 minutes depuis votre mobile. L'efficacité au service de la confiance.",
   },
   {
     icon: FileCheck,
-    title: "Preuve PDF horodatée",
+    title: "Preuve Inaltérable",
     description:
-      "PDF avec QR de vérification, hash SHA-256 et identifiant unique ZP-YYYY-XXXXX.",
+      "PDF horodaté avec QR de vérification unique et empreinte numérique (Hash SHA-256).",
   },
   {
     icon: Handshake,
-    title: "Validation mutuelle",
+    title: "Accord Bilatéral",
     description:
-      "Le destinataire accepte ou refuse en un clic — sans compte obligatoire.",
+      "Le destinataire valide l'engagement en un clic. Pas de compte requis pour la preuve initiale.",
   },
   {
     icon: Shield,
-    title: "Score de fiabilité",
+    title: "Réputation Digitale",
     description:
-      "Construisez une réputation d'accords honorés pour vos échanges futurs.",
+      "Construisez un score de fiabilité basé sur vos engagements honorés au fil du temps.",
   },
 ];
 
 const steps = [
-  { n: "01", title: "Décrivez l'accord", desc: "Type, parties, montant, échéance." },
-  { n: "02", title: "Envoyez l'invitation", desc: "Email sécurisé au destinataire." },
-  { n: "03", title: "Validation", desc: "Acceptation ou refus documenté." },
-  { n: "04", title: "Preuve téléchargeable", desc: "PDF partageable à vie sur la plateforme." },
+  { n: "01", title: "Paramétrez l'accord", desc: "Type, parties, montant et échéances clés." },
+  { n: "02", title: "Invitez le partenaire", desc: "Envoi instantané via email ou lien sécurisé." },
+  { n: "03", title: "Validation mutuelle", desc: "Acceptation documentée et horodatée par le système." },
+  { n: "04", title: "Délivrance de preuve", desc: "PDF certifié, téléchargeable et vérifiable à vie." },
 ];
 
-const plans = [
-  {
-    name: "Gratuit",
-    price: "0 FCFA",
-    limit: "3 accords / mois",
-    features: ["PDF horodaté", "Vérification publique", "Score de base"],
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
   },
-  {
-    name: "Starter",
-    price: "2 500 FCFA",
-    limit: "20 accords / mois",
-    features: ["Tout Gratuit", "Rappels email", "Support email"],
-    highlight: true,
-  },
-  {
-    name: "Pro",
-    price: "7 500 FCFA",
-    limit: "100 accords / mois",
-    features: ["Tout Starter", "Modèles métiers", "Export données"],
-  },
-];
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 25 } },
+};
 
 export default function HomePage() {
   return (
     <>
       <SiteHeader dark />
-      <main>
-        {/* Hero — inspiration dark agency, accent teal */}
-        <section className="relative overflow-hidden bg-neutral-950 text-neutral-0">
-          <div className="pointer-events-none absolute inset-0 glow-teal-dark" />
-          <div className="relative mx-auto max-w-container px-4 pb-24 pt-12 md:px-10 md:pb-32 md:pt-20 lg:px-20">
-            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-              <div className="page-enter max-w-xl">
-                <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-400/30 bg-primary-950/50 px-4 py-1.5 text-xs font-medium text-primary-300">
-                  <Smartphone className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  Mobile-first · Togo & Afrique de l&apos;Ouest
-                </span>
-                <h1 className="text-display-xl text-neutral-0">
-                  Zéro palabre.
-                  <br />
-                  <span className="text-primary-400">Preuve claire</span> de vos accords.
-                </h1>
-                <p className="mt-6 max-w-md text-base leading-relaxed text-neutral-400 md:text-lg">
-                  Prêts, prestations, locations, commandes — formalisez vos engagements verbaux en accord numérique validé, avec PDF horodaté et vérifiable.
-                </p>
-                <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-                  <Button size="lg" asChild>
+      <main className="overflow-hidden">
+        {/* Hero Section — Asymmetric & Premium */}
+        <section className="relative min-h-[90dvh] flex items-center bg-neutral-950 text-neutral-0">
+          <div className="absolute inset-0 african-pattern-mask opacity-[0.03] pointer-events-none" />
+          <div className="absolute top-1/4 right-0 w-[500px] h-[500px] glow-primary pointer-events-none" />
+          
+          <div className="relative mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-16 w-full">
+            <div className="grid gap-16 lg:grid-cols-12 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="lg:col-span-7 space-y-10"
+              >
+                <div className="space-y-6">
+                  <motion.span 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="inline-flex items-center gap-2 rounded-full border border-primary-400/20 bg-primary-950/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-primary-400"
+                  >
+                    <Smartphone className="h-3.5 w-3.5" />
+                    Propulsé par la confiance · Togo
+                  </motion.span>
+                  <h1 className="text-display-xl tracking-tight leading-[0.95] text-balance">
+                    Zéro palabre. <br />
+                    <span className="text-primary-500">Formalisez</span> vos <br />
+                    engagements.
+                  </h1>
+                  <p className="max-w-lg text-lg md:text-xl text-neutral-400 leading-relaxed font-medium">
+                    Prêts, locations, prestations — transformez vos accords verbaux en preuves numériques certifiées en moins de 2 minutes.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                  <Button size="lg" className="h-14 px-10 text-base rounded-2xl shadow-xl shadow-primary-700/20" asChild>
                     <Link href="/inscription">
-                      Créer mon premier accord
-                      <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
+                      Démarrer maintenant
+                      <ArrowRight className="h-5 w-5 ml-2" />
                     </Link>
                   </Button>
-                  <Button variant="secondary" size="lg" asChild className="border-neutral-600 text-neutral-0 hover:bg-neutral-800 hover:text-neutral-0">
-                    <Link href="#comment-ca-marche">Voir comment ça marche</Link>
+                  <Button variant="ghost" size="lg" className="h-14 px-8 text-neutral-300 hover:text-neutral-0 hover:bg-neutral-800/50 rounded-2xl" asChild>
+                    <Link href="#comment-ca-marche">Explorer la méthode</Link>
                   </Button>
                 </div>
-              </div>
 
-              <div className="page-enter relative hidden lg:block" style={{ animationDelay: "100ms" }}>
-                <div className="relative rounded-2xl border border-neutral-800 bg-neutral-900/80 p-8 shadow-xl backdrop-blur">
-                  <div className="absolute -right-4 -top-4 flex h-24 w-24 flex-col items-center justify-center rounded-2xl border border-primary-600/40 bg-primary-950 text-center">
-                    <span className="text-3xl font-extrabold tracking-tight text-primary-400">2</span>
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-primary-300">min</span>
-                  </div>
-                  <p className="text-sm font-medium text-primary-400">Accord type — Prêt</p>
-                  <h2 className="mt-2 text-2xl font-bold tracking-tight">Remboursement matériel photo</h2>
-                  <p className="mt-4 text-sm text-neutral-400">150 000 FCFA · échéance 30 juin 2026</p>
-                  <div className="mt-6 flex items-center gap-3 rounded-lg bg-primary-950/60 px-4 py-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary-400" strokeWidth={1.5} />
-                    <span className="text-sm text-neutral-200">Statut : Validé · ZP-2026-00042</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats band */}
-        <section className="border-b border-neutral-150 bg-neutral-0 py-16">
-          <div className="mx-auto grid max-w-container gap-8 px-4 md:grid-cols-3 md:px-10 lg:px-20">
-            {[
-              { value: "2 min", label: "Temps moyen de création" },
-              { value: "72h", label: "Validité du lien d'invitation" },
-              { value: "100%", label: "Traçabilité des événements" },
-            ].map((s) => (
-              <div key={s.label} className="text-center md:text-left">
-                <p className="text-3xl font-extrabold tracking-tight text-primary-800">{s.value}</p>
-                <p className="mt-1 text-sm text-neutral-600">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="fonctionnalites" className="py-20 md:py-28">
-          <div className="mx-auto max-w-container px-4 md:px-10 lg:px-20">
-            <h2 className="text-heading-xl max-w-2xl text-neutral-900">
-              Simple, rapide, fiable — des accords qui tiennent la route
-            </h2>
-            <p className="mt-4 max-w-xl text-neutral-600">
-              Pensé pour artisans, commerçants, freelances et particuliers qui vivent encore trop d&apos;accords « sur parole ».
-            </p>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map((f) => (
-                <Card key={f.title} className="page-enter">
-                  <f.icon className="mb-4 h-8 w-8 text-primary-700" strokeWidth={1.5} />
-                  <CardHeader className="p-0">
-                    <CardTitle className="text-base">{f.title}</CardTitle>
-                    <CardDescription>{f.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Process */}
-        <section id="comment-ca-marche" className="bg-primary-50 py-20 md:py-28">
-          <div className="mx-auto max-w-container px-4 md:px-10 lg:px-20">
-            <h2 className="text-heading-xl text-neutral-900">Comment ça marche</h2>
-            <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {steps.map((step) => (
-                <div
-                  key={step.n}
-                  className="rounded-lg border border-primary-200 bg-neutral-0 p-6 shadow-xs"
-                >
-                  <span className="text-sm font-bold text-primary-800">{step.n}</span>
-                  <h3 className="mt-2 font-semibold text-neutral-900">{step.title}</h3>
-                  <p className="mt-2 text-sm text-neutral-600">{step.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section id="tarifs" className="py-20 md:py-28">
-          <div className="mx-auto max-w-container px-4 md:px-10 lg:px-20">
-            <h2 className="text-heading-xl text-neutral-900">Tarifs transparents</h2>
-            <p className="mt-4 text-neutral-600">3 accords gratuits sans carte. Paiement simulé en MVP (Tmoney-Moov test).</p>
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              {plans.map((plan) => (
-                <Card
-                  key={plan.name}
-                  className={plan.highlight ? "border-primary-400 ring-2 ring-primary-200" : ""}
-                >
-                  <CardHeader>
-                    <CardTitle>{plan.name}</CardTitle>
-                    <p className="text-2xl font-bold text-primary-800">{plan.price}<span className="text-sm font-normal text-neutral-500">/mois</span></p>
-                    <CardDescription>{plan.limit}</CardDescription>
-                  </CardHeader>
-                  <ul className="space-y-2 text-sm text-neutral-600">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-primary-700" strokeWidth={1.5} />
-                        {f}
-                      </li>
+                <div className="flex items-center gap-6 pt-4">
+                  <div className="flex -space-x-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="h-10 w-10 rounded-full border-2 border-neutral-950 bg-neutral-800 flex items-center justify-center overflow-hidden relative">
+                        <Image src={`https://picsum.photos/seed/user${i}/100/100`} alt="User" fill className="object-cover" />
+                      </div>
                     ))}
-                  </ul>
-                </Card>
-              ))}
+                  </div>
+                  <p className="text-sm font-medium text-neutral-500 italic">
+                    Déjà +1,200 accords certifiés ce mois-ci
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Liquid Glass Hero Asset */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+                className="lg:col-span-5 hidden lg:block perspective-1000"
+              >
+                <div className="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8">
+                     <div className="h-20 w-20 rounded-3xl bg-primary-600/20 flex flex-col items-center justify-center border border-primary-500/30">
+                        <span className="text-2xl font-black text-primary-400 font-mono">2</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary-300">MIN</span>
+                     </div>
+                  </div>
+                  
+                  <div className="space-y-8 relative z-10">
+                    <div className="space-y-2">
+                      <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-primary-500">Document Sécurisé</p>
+                      <h2 className="text-3xl font-extrabold tracking-tighter">Accord de Prestation Photo</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-3 border-b border-neutral-100/10">
+                        <span className="text-sm font-medium text-neutral-400">Montant</span>
+                        <span className="font-mono text-lg font-bold text-primary-400">125 000 FCFA</span>
+                      </div>
+                      <div className="flex justify-between items-center py-3 border-b border-neutral-100/10">
+                        <span className="text-sm font-medium text-neutral-400">Date d&apos;échéance</span>
+                        <span className="font-mono text-sm font-bold text-neutral-200">24 JUIN 2026</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 rounded-2xl bg-primary-600/10 p-5 border border-primary-500/20">
+                      <div className="h-10 w-10 rounded-full bg-primary-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="h-6 w-6 text-primary-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-primary-300">Statut Certifié</p>
+                        <p className="text-sm font-medium text-neutral-100">ZP-2026-X8802</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="bg-primary-800 py-20 text-neutral-0 md:py-24">
-          <div className="mx-auto max-w-container px-4 text-center md:px-10 lg:px-20">
-            <h2 className="text-display-l text-neutral-0">Un projet en tête ? Formalisez-le.</h2>
-            <p className="mx-auto mt-4 max-w-lg text-primary-100">
-              Rejoignez ceux qui préfèrent une preuve claire à une longue palabre.
-            </p>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="mt-8 border-neutral-0 bg-neutral-0 text-primary-800 hover:bg-primary-50"
-              asChild
+        {/* Value Prop — Bento Inspired */}
+        <section className="py-32 bg-neutral-0">
+          <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-16">
+            <div className="space-y-4 max-w-3xl mb-16">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-balance leading-[1.1]">
+                Pourquoi choisir <span className="text-primary-700">Zéro-Palabre</span> ?
+              </h2>
+              <p className="text-lg text-neutral-500 font-medium">
+                Parce que la confiance ne suffit pas toujours, nous créons la preuve qui protège vos relations.
+              </p>
+            </div>
+
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
-              <Link href="/inscription">Commencer gratuitement</Link>
-            </Button>
+              {features.map((f) => (
+                <motion.div key={f.title} variants={itemVariants}>
+                  <Card className="h-full border-neutral-200/50 hover:shadow-premium transition-all p-8 space-y-6">
+                    <div className="h-14 w-14 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-700">
+                      <f.icon className="h-7 w-7" strokeWidth={2} />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-bold tracking-tight text-neutral-900">{f.title}</h3>
+                      <p className="text-sm leading-relaxed text-neutral-500">{f.description}</p>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </section>
 
-        {/* FAQ */}
-        <section id="faq" className="py-20">
-          <div className="mx-auto max-w-container px-4 md:max-w-2xl md:px-10 lg:px-20">
-            <h2 className="text-heading-xl text-neutral-900">Questions fréquentes</h2>
-            <dl className="mt-10 space-y-8">
-              {[
-                {
-                  q: "Est-ce un contrat juridique ?",
-                  a: "Non. Zéro-Palabre formalise et horodate un accord entre parties. C'est une preuve de bonne foi, pas un acte notarié.",
-                },
-                {
-                  q: "Le destinataire doit-il s'inscrire ?",
-                  a: "Non pour valider. Un compte lui est proposé après acceptation pour retrouver ses accords.",
-                },
-                {
-                  q: "Comment vérifier un PDF ?",
-                  a: "Scannez le QR code ou visitez zeropalabre.com/verifier avec l'identifiant de l'accord.",
-                },
-              ].map((item) => (
-                <div key={item.q} className="border-b border-neutral-150 pb-8">
-                  <dt className="font-semibold text-neutral-900">{item.q}</dt>
-                  <dd className="mt-2 text-sm leading-relaxed text-neutral-600">{item.a}</dd>
-                </div>
-              ))}
-            </dl>
+        {/* The Process — Visual Cascade */}
+        <section id="comment-ca-marche" className="py-32 bg-neutral-50 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-300/30 to-transparent" />
+          
+          <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-16">
+            <div className="flex flex-col lg:flex-row gap-16 items-start">
+              <div className="lg:sticky lg:top-32 max-w-md space-y-6">
+                 <h2 className="text-4xl font-black tracking-tight leading-none">
+                  Un processus <span className="text-primary-700">fluide</span>.
+                 </h2>
+                 <p className="text-lg text-neutral-500 font-medium">
+                  En quatre étapes simples, sécurisez n&apos;importe quel échange du quotidien.
+                 </p>
+                 <div className="pt-4">
+                   <Button asChild variant="outline" className="rounded-xl">
+                    <Link href="/inscription">Démarrer maintenant</Link>
+                   </Button>
+                 </div>
+              </div>
+
+              <div className="flex-1 space-y-6">
+                {steps.map((step, idx) => (
+                  <motion.div 
+                    key={step.n}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex gap-6 p-8 rounded-[2rem] bg-neutral-0 border border-neutral-200/60 shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="h-12 w-12 shrink-0 rounded-2xl bg-neutral-100 flex items-center justify-center text-xl font-black text-neutral-300 group-hover:bg-primary-700 group-hover:text-neutral-0 transition-colors">
+                      {step.n}
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-bold tracking-tight text-neutral-900">{step.title}</h3>
+                      <p className="text-neutral-500 leading-relaxed font-medium">{step.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA — Emotional Peak */}
+        <section className="py-32 bg-primary-800 text-neutral-0 relative overflow-hidden">
+          <div className="absolute inset-0 african-pattern-mask opacity-[0.05]" />
+          <div className="relative mx-auto max-w-4xl px-6 text-center space-y-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.95]">
+                Dites adieu aux <br />
+                <span className="text-primary-400">malentendus</span>.
+              </h2>
+              <p className="mt-8 text-xl text-primary-100/80 font-medium max-w-2xl mx-auto leading-relaxed">
+                Rejoignez la nouvelle génération qui préfère une preuve claire à une longue palabre. Sécurisez vos relations dès aujourd&apos;hui.
+              </p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Button
+                size="lg"
+                className="h-16 px-12 text-lg rounded-2xl bg-neutral-0 text-primary-900 hover:bg-primary-50 hover:scale-105 transition-all shadow-2xl"
+                asChild
+              >
+                <Link href="/inscription">Créer mon premier accord gratuitement</Link>
+              </Button>
+              <p className="mt-6 text-sm font-bold text-primary-400 uppercase tracking-widest">
+                Sans carte bancaire · 3 accords offerts
+              </p>
+            </motion.div>
           </div>
         </section>
       </main>
@@ -262,3 +300,4 @@ export default function HomePage() {
     </>
   );
 }
+
