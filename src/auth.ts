@@ -2,12 +2,17 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Resend from "next-auth/providers/resend";
 import { prisma } from "@/lib/prisma";
+import { sendMagicLinkEmail } from "@/lib/auth-email";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     Resend({
-      from: process.env.RESEND_FROM_EMAIL ?? "Zéro-Palabre <onboarding@resend.dev>",
+      id: "resend",
+      from:
+        process.env.RESEND_FROM_EMAIL ??
+        "Zéro-Palabre <onboarding@resend.dev>",
+      sendVerificationRequest: sendMagicLinkEmail,
     }),
   ],
   pages: {

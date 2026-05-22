@@ -13,7 +13,6 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 export default function ConnexionPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -27,9 +26,9 @@ export default function ConnexionPage() {
     });
     setLoading(false);
     if (res?.error) {
-      setError("Impossible d'envoyer le lien. Vérifiez votre email.");
+      setError("Impossible d'envoyer le lien. Réessayez ou consultez le terminal (mode dev).");
     } else {
-      setSent(true);
+      window.location.href = "/connexion/verifier";
     }
   }
 
@@ -45,17 +44,7 @@ export default function ConnexionPage() {
             Recevez un lien magique par email — sans mot de passe.
           </CardDescription>
         </CardHeader>
-        {sent ? (
-          <div className="px-6 pb-6">
-            <p className="text-sm text-neutral-600">
-              Un lien de connexion a été envoyé à <strong>{email}</strong>. Valide 15 minutes.
-            </p>
-            <Button variant="ghost" className="mt-4 w-full" onClick={() => setSent(false)}>
-              Utiliser un autre email
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 px-6 pb-6">
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 pb-6">
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -79,8 +68,7 @@ export default function ConnexionPage() {
                 S&apos;inscrire
               </Link>
             </p>
-          </form>
-        )}
+        </form>
       </Card>
     </div>
   );

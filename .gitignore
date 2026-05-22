@@ -16,6 +16,9 @@
 # production
 /build
 
+# ancien scaffold (fantôme IDE)
+/zero-palabre-app
+
 # misc
 .DS_Store
 *.pem
