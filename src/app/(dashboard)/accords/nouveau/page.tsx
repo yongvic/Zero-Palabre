@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { CreateAccordForm } from "@/components/accord/create-accord-form";
+import { CreateAccordTabs } from "@/components/accord/create-accord-tabs";
 import { QuotaBanner } from "@/components/accord/quota-banner";
 import { OnlineGuard } from "@/components/pwa/online-guard";
 import { getAccordQuota } from "@/lib/accord-quota";
@@ -28,7 +28,8 @@ export default async function NouvelAccordPage() {
             Initier un accord.
           </h1>
           <p className="text-base text-neutral-500 font-medium">
-            Suivez les étapes pour créer une preuve numérique certifiée.
+            Décrivez votre accord à la voix ou remplissez le formulaire — l&apos;IA structure
+            votre déclaration avant envoi.
           </p>
         </div>
       </div>
@@ -37,9 +38,10 @@ export default async function NouvelAccordPage() {
         <QuotaBanner quota={quota} />
         {quota.canCreate ? (
           <OnlineGuard action="La création d'un accord">
-            <CreateAccordForm
+            <CreateAccordTabs
               initiateurName={session.user.name ?? "Utilisateur"}
               initiateurEmail={session.user.email ?? ""}
+              voiceEnabled={Boolean(process.env.DEEPSEEK_API_KEY)}
             />
           </OnlineGuard>
         ) : null}

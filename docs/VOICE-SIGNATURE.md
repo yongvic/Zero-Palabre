@@ -1,4 +1,6 @@
-# Signature vocale (DeepSeek)
+# Signature vocale — validation destinataire (DeepSeek)
+
+> Pour **créer** un accord à la voix (initiateur), voir [`VOICE-ACCORD.md`](./VOICE-ACCORD.md).
 
 ## Configuration
 

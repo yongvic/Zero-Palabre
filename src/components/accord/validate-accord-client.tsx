@@ -22,7 +22,7 @@ export function ValidateAccordClient({
   voiceEnabled = true,
 }: Props) {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>(voiceEnabled ? "voice" : "quick");
+  const [mode, setMode] = useState<Mode>("quick");
   const [commentaire, setCommentaire] = useState("");
   const [loading, setLoading] = useState(false);
   const [showRejectReason, setShowRejectReason] = useState(false);

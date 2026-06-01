@@ -30,6 +30,7 @@ model User {
   accordsReceived      Accord[]             @relation("Destinataire")
   subscription         Subscription?
   reliabilityScore     ReliabilityScore?
+  voiceAccordDrafts    VoiceAccordDraft[]
 }
 
 model Account {
@@ -120,6 +121,32 @@ model VoiceSignatureSession {
 }
 
 enum VoiceSessionStatus {
+  IN_PROGRESS
+  READY
+  APPLIED
+  EXPIRED
+}
+
+model VoiceAccordDraft {
+  id            String   @id @default(cuid())
+  sessionId     String   @unique @default(cuid())
+  userId        String
+  transcripts   Json     @default("[]")
+  extracted     Json?
+  missingFields Json     @default("[]")
+  audioUrls     Json     @default("[]")
+  status        VoiceDraftStatus @default(IN_PROGRESS)
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+enum VoiceDraftStatus {
   IN_PROGRESS
   READY
   APPLIED
