@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isInviteExpired } from "@/lib/invite-expiry";
 
 export async function findAccordForParty(publicToken: string) {
   const accord = await prisma.accord.findUnique({
@@ -12,7 +13,7 @@ export async function findAccordForParty(publicToken: string) {
     return { accord, error: "ALREADY_PROCESSED" as const };
   }
 
-  if (accord.inviteExpiresAt && accord.inviteExpiresAt < new Date()) {
+  if (accord.statut === "EXPIRED" || isInviteExpired(accord)) {
     await prisma.accord.update({
       where: { id: accord.id },
       data: { statut: "EXPIRED" },

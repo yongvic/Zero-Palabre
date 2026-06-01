@@ -81,7 +81,7 @@ model AccordPartySession {
 |-----|------------------|
 | Tout accepté tel quel | Validation classique + PDF |
 | Au moins 1 terme modifié | **Option A** : bloquer jusqu’à réponse initiateur (phase 2) · **Option B** : accepter avec « version destinataire » dans le PDF (MVP plus simple) |
-| Session expirée (72 h) | Reprendre à l’étape sauvegardée si `currentStep` en base |
+| Session expirée (5 h après envoi) | Lien et parcours indisponibles ; statut `EXPIRED` |
 | Hors ligne | Lecture cache seulement ; pas de sauvegarde d’étape |
 
 ---

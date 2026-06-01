@@ -11,6 +11,7 @@ import {
 } from "@/lib/voice-signature/session";
 import type { VoiceExtraction } from "@/lib/voice-signature/types";
 import type { Prisma } from "@prisma/client";
+import { isInviteExpired } from "@/lib/invite-expiry";
 
 export async function POST(
   req: Request,
@@ -36,7 +37,7 @@ export async function POST(
       );
     }
 
-    if (accord.inviteExpiresAt && accord.inviteExpiresAt < new Date()) {
+    if (accord.statut === "EXPIRED" || isInviteExpired(accord)) {
       await prisma.accord.update({
         where: { id: accord.id },
         data: { statut: "EXPIRED" },

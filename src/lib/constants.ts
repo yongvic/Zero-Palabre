@@ -1,5 +1,5 @@
 export const FREE_ACCORD_LIMIT = 3;
-export const INVITE_EXPIRY_HOURS = 72;
+export const INVITE_EXPIRY_HOURS = 5;
 export const MAGIC_LINK_EXPIRY_MINUTES = 15;
 
 export const PLAN_LIMITS: Record<string, number> = {

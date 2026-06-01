@@ -9,6 +9,7 @@ import {
   getPartySessionBySessionId,
 } from "@/lib/party-session/session";
 import { fieldResponseSchema } from "@/lib/party-session/types";
+import { resolveInviteExpiresAt } from "@/lib/invite-expiry";
 import type { Prisma } from "@prisma/client";
 
 const patchSchema = z.object({
@@ -46,9 +47,7 @@ export async function GET(
       );
     }
 
-    const expiresAt =
-      result.accord.inviteExpiresAt ??
-      new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const expiresAt = resolveInviteExpiresAt(result.accord);
 
     const session = await getOrCreatePartySession(result.accord.id, expiresAt);
     const snapshot = accordToSnapshot(result.accord);
@@ -88,9 +87,7 @@ export async function PATCH(
     }
 
     const body = patchSchema.parse(await req.json());
-    const expiresAt =
-      result.accord.inviteExpiresAt ??
-      new Date(Date.now() + 72 * 60 * 60 * 1000);
+    const expiresAt = resolveInviteExpiresAt(result.accord);
 
     let session = await getOrCreatePartySession(result.accord.id, expiresAt);
 

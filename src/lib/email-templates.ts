@@ -1,3 +1,5 @@
+import { inviteExpiryLabel } from "@/lib/invite-expiry";
+
 export function accordInviteEmail({
   initiateurName,
   titre,
@@ -15,7 +17,7 @@ export function accordInviteEmail({
     <img src="${process.env.NEXT_PUBLIC_APP_URL}/brand/logo-vert.png" alt="Zéro-Palabre" height="32" style="margin-bottom:24px"/>
     <h1 style="color:#0F6E56;font-size:22px;margin:0 0 16px;">Nouvel accord à valider</h1>
     <p style="color:#1A1A16;line-height:1.6;">${initiateurName} vous invite à valider l'accord : <strong>${titre}</strong></p>
-    <p style="color:#5A5A52;font-size:14px;">Ce lien est valide 72 heures.</p>
+    <p style="color:#5A5A52;font-size:14px;">Ce lien est valide ${inviteExpiryLabel()}.</p>
     <a href="${validationUrl}" style="display:inline-block;margin-top:24px;background:#0F6E56;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Consulter et valider</a>
   </div>
 </body>

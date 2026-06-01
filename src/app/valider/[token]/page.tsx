@@ -9,7 +9,8 @@ import { formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ACCORD_STATUT_LABELS } from "@/lib/constants";
 import { accordToSnapshot } from "@/lib/party-session/terms";
-import { Calendar, FileText, Layers, ShieldCheck, User } from "lucide-react";
+import { isInviteExpired, inviteExpiryLabel } from "@/lib/invite-expiry";
+import { Calendar, Clock, FileText, Layers, ShieldCheck, User } from "lucide-react";
 
 export default async function ValiderPage({
   params,
@@ -22,6 +23,17 @@ export default async function ValiderPage({
   });
 
   if (!accord) notFound();
+
+  if (
+    isInviteExpired(accord) &&
+    !["ACCEPTED", "REJECTED", "EXPIRED"].includes(accord.statut)
+  ) {
+    await prisma.accord.update({
+      where: { id: accord.id },
+      data: { statut: "EXPIRED" },
+    });
+    accord.statut = "EXPIRED";
+  }
 
   if (!accord.viewedAt && accord.statut === "SENT") {
     await prisma.accord.update({
@@ -136,7 +148,7 @@ export default async function ValiderPage({
             {/* Note de sécurité contextuelle */}
             <div className="rounded-lg border border-neutral-150 bg-neutral-50 p-4 text-xs text-neutral-600 leading-relaxed">
               <strong className="text-neutral-900 font-semibold block mb-1">ℹ️ Informations importantes pour le destinataire</strong>
-              Une fois cet accord validé par vos soins, il deviendra totalement immuable. Une preuve certifiée sous format PDF intégrant un code QR unique et un horodatage cryptographique sera générée à vie sur la plateforme.
+              Une fois cet accord validé par vos soins, il deviendra totalement immuable. Une preuve certifiée sous format PDF intégrant un code QR unique et un horodatage cryptographique sera générée à vie sur la plateforme. Le lien de validation expire {inviteExpiryLabel()} après l&apos;envoi.
             </div>
           </div>
         </div>
@@ -157,6 +169,16 @@ export default async function ValiderPage({
                 initialAccord={accordToSnapshot(accord)}
               />
             </>
+          ) : accord.statut === "EXPIRED" ? (
+            <div className="text-center py-6">
+              <Clock className="h-10 w-10 text-neutral-500 mx-auto mb-4" strokeWidth={1.5} />
+              <h3 className="text-base font-bold text-neutral-900 mb-2">Lien expiré</h3>
+              <p className="text-sm text-neutral-600 mb-6 max-w-sm mx-auto leading-relaxed">
+                Ce lien n&apos;est plus valide : le délai de {inviteExpiryLabel()} après
+                l&apos;envoi est dépassé. Demandez à l&apos;initiateur de vous renvoyer une
+                invitation.
+              </p>
+            </div>
           ) : (
             <div className="text-center py-6">
               <ShieldCheck className="h-10 w-10 text-primary-800 mx-auto mb-4" strokeWidth={1.5} />
