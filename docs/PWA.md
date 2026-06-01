@@ -27,4 +27,22 @@ Pas de **Serwist / precache webpack** : évite la surcharge mémoire au build (`
 
 ## Icônes
 
-Remplacer `public/icons/icon-192.png` et `icon-512.png` par des exports carrés (fond `#F9F9F6` ou transparent) pour un rendu maskable optimal.
+Sources maîtres (fond vert `#116454`) :
+
+- `public/icons/icone 192×192.png`
+- `public/icons/icone 512×512.png`
+
+Copies servies par l’app (URLs sans espaces) :
+
+- `public/icons/icon-192.png`
+- `public/icons/icon-512.png`
+- `public/apple-touch-icon.png`
+
+Après modification des sources, recopier :
+
+```powershell
+cd public/icons
+Copy-Item -LiteralPath "icone 192×192.png" -Destination icon-192.png -Force
+Copy-Item -LiteralPath "icone 512×512.png" -Destination icon-512.png -Force
+Copy-Item -LiteralPath "icone 192×192.png" -Destination ..\apple-touch-icon.png -Force
+```

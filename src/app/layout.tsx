@@ -43,8 +43,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: PWA_CONFIG.icons.icon192, sizes: "192x192", type: "image/png" },
+      { url: PWA_CONFIG.icons.icon512, sizes: "512x512", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",
   },

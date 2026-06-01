@@ -17,19 +17,19 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "finance", "productivity"],
     icons: [
       {
-        src: "/icons/icon-192.png",
+        src: PWA_CONFIG.icons.icon192,
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-512.png",
+        src: PWA_CONFIG.icons.icon512,
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-512.png",
+        src: PWA_CONFIG.icons.icon512,
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
@@ -41,13 +41,13 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "Mes accords",
         short_name: "Accords",
         url: "/accords",
-        icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
+        icons: [{ src: PWA_CONFIG.icons.icon192, sizes: "192x192" }],
       },
       {
         name: "Nouvel accord",
         short_name: "Créer",
         url: "/accords/nouveau",
-        icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
+        icons: [{ src: PWA_CONFIG.icons.icon192, sizes: "192x192" }],
       },
     ],
   };

@@ -8,7 +8,11 @@ const CACHE_SHELL = "zp-shell-v1";
 const CACHE_DASHBOARD = "zp-dashboard-v1";
 const CACHE_ASSETS = "zp-assets-v1";
 
-const SHELL_URLS = ["/offline", "/brand/logo-vert.png"];
+const SHELL_URLS = [
+  "/offline",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+];
 
 const DASHBOARD_PREFIXES = ["/accords", "/profil", "/abonnement", "/tableau-de-bord"];
 
