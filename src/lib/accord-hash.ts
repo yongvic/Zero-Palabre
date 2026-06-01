@@ -1,19 +1,22 @@
 import { createHash } from "crypto";
 import type { Accord } from "@/types/database";
 
-export function buildAccordPayload(accord: Pick<
-  Accord,
-  | "reference"
-  | "titre"
-  | "description"
-  | "type"
-  | "montant"
-  | "devise"
-  | "dateEcheance"
-  | "destinataireNom"
-  | "destinataireEmail"
-  | "validatedAt"
->) {
+export function buildAccordPayload(
+  accord: Pick<
+    Accord,
+    | "reference"
+    | "titre"
+    | "description"
+    | "type"
+    | "montant"
+    | "devise"
+    | "dateEcheance"
+    | "destinataireNom"
+    | "destinataireEmail"
+    | "validatedAt"
+  >,
+  partyProof?: unknown
+) {
   return JSON.stringify({
     reference: accord.reference,
     titre: accord.titre,
@@ -25,9 +28,13 @@ export function buildAccordPayload(accord: Pick<
     destinataireNom: accord.destinataireNom,
     destinataireEmail: accord.destinataireEmail,
     validatedAt: accord.validatedAt?.toISOString() ?? null,
+    partyProof: partyProof ?? null,
   });
 }
 
-export function hashAccordContent(accord: Parameters<typeof buildAccordPayload>[0]) {
-  return createHash("sha256").update(buildAccordPayload(accord)).digest("hex");
+export function hashAccordContent(
+  accord: Parameters<typeof buildAccordPayload>[0],
+  partyProof?: unknown
+) {
+  return createHash("sha256").update(buildAccordPayload(accord, partyProof)).digest("hex");
 }

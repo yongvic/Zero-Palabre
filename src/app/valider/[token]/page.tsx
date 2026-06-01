@@ -3,11 +3,12 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { ValidateAccordClient } from "@/components/accord/validate-accord-client";
+import { PartyAccordWizard } from "@/components/accord/party-flow/party-accord-wizard";
 import { ACCORD_TYPE_LABELS } from "@/lib/constants";
 import { formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ACCORD_STATUT_LABELS } from "@/lib/constants";
+import { accordToSnapshot } from "@/lib/party-session/terms";
 import { Calendar, FileText, Layers, ShieldCheck, User } from "lucide-react";
 
 export default async function ValiderPage({
@@ -144,20 +145,16 @@ export default async function ValiderPage({
         <div className="rounded-2xl border border-neutral-150 bg-neutral-0 p-6 md:p-8 shadow-xs">
           {!readonly ? (
             <>
-              <h3 className="text-base font-bold text-neutral-900 mb-2">Prendre position sur cette proposition</h3>
+              <h3 className="text-base font-bold text-neutral-900 mb-2">
+                Parcours de prise de position
+              </h3>
               <p className="text-xs text-neutral-500 mb-6 leading-relaxed">
-                Signez par la voix (recommandé) pour une preuve renforcée, ou validez en un clic.
-                L&apos;IA Gemini analyse votre déclaration et vous guide si des informations manquent.
+                Confirmez votre identité, validez chaque terme de l&apos;accord puis scellez votre
+                engagement. Chaque étape est horodatée et fera partie de la preuve numérique.
               </p>
-              <ValidateAccordClient
+              <PartyAccordWizard
                 token={accord.publicToken}
-                destinataireNom={accord.destinataireNom}
-                titre={accord.titre}
-                reference={accord.reference}
-                voiceEnabled={
-                  Boolean(process.env.GEMINI_API_KEY) ||
-                  Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY)
-                }
+                initialAccord={accordToSnapshot(accord)}
               />
             </>
           ) : (

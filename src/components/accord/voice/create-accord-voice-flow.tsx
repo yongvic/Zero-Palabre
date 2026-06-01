@@ -31,7 +31,7 @@ const TYPES = [
   { id: "AUTRE", label: "Autre" },
 ] as const;
 
-type Step = "consent" | "record" | "analyze" | "complete" | "preview";
+type Step = "consent" | "record" | "complete" | "preview";
 
 type Props = {
   initiateurName: string;
@@ -47,6 +47,7 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
   const [manualText, setManualText] = useState("");
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const media = useMediaRecorder();
@@ -66,34 +67,42 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
 
   const analyze = useCallback(
     async (answers?: Record<string, string>) => {
-      setStep("analyze");
+      setAnalyzing(true);
       setError("");
 
-      const res = await fetch("/api/accords/voice/extract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transcript: finalTranscript,
-          sessionId: session?.sessionId,
-          textAnswers: answers,
-        }),
-      });
+      try {
+        const res = await fetch("/api/accords/voice/extract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transcript: finalTranscript,
+            sessionId: session?.sessionId,
+            textAnswers: answers,
+          }),
+        });
 
-      const json = await res.json();
-      if (!res.ok) {
-        setError(json.error?.message ?? "Analyse impossible");
-        setStep("record");
-        return;
-      }
+        const json = await res.json();
+        if (!res.ok) {
+          setError(
+            json.error?.message ??
+              "Analyse impossible. Vérifiez GEMINI_API_KEY et GEMINI_MODEL=gemini-1.5-flash dans .env."
+          );
+          return;
+        }
 
-      const data = json.data as VoiceAccordDraftPayload;
-      setSession(data);
-      setDraft((prev) => ({ ...prev, ...(data.draft as Partial<CreateAccordInput>) }));
+        const data = json.data as VoiceAccordDraftPayload;
+        setSession(data);
+        setDraft((prev) => ({ ...prev, ...(data.draft as Partial<CreateAccordInput>) }));
 
-      if (data.ready) {
-        setStep("preview");
-      } else {
-        setStep("complete");
+        if (data.ready) {
+          setStep("preview");
+        } else {
+          setStep("complete");
+        }
+      } catch {
+        setError("Erreur réseau pendant l'analyse. Vérifiez votre connexion et réessayez.");
+      } finally {
+        setAnalyzing(false);
       }
     },
     [finalTranscript, session?.sessionId]
@@ -162,7 +171,7 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
 
   const stepLabels = ["Préparer", "Parler", "Vérifier", "Envoyer"];
   const stepIdx =
-    step === "consent" ? 0 : step === "record" || step === "analyze" ? 1 : step === "complete" ? 2 : 3;
+    step === "consent" ? 0 : step === "record" ? 1 : step === "complete" ? 2 : 3;
 
   return (
     <div className="space-y-6">
@@ -187,6 +196,14 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
         </div>
       )}
 
+      {analyzing && (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-primary-100 bg-primary-50/50 py-10">
+          <Loader2 className="h-9 w-9 animate-spin text-primary-700" />
+          <p className="text-sm font-semibold text-neutral-800">Gemini analyse votre déclaration…</p>
+        </div>
+      )}
+
+      {!analyzing && (
       <AnimatePresence mode="wait">
         {step === "consent" && (
           <motion.div
@@ -231,7 +248,7 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="space-y-4"
+            className="relative space-y-4"
           >
             <div className="rounded-xl bg-neutral-50 border border-neutral-150 p-4 text-xs text-neutral-600 leading-relaxed">
               <strong className="text-neutral-900">Exemple :</strong> « Je prête 200 000 FCFA à
@@ -257,24 +274,13 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
               <Button
                 className="flex-1"
                 onClick={handleRecordNext}
-                disabled={media.recording || !finalTranscript}
+                disabled={media.recording || !finalTranscript || analyzing}
+                loading={analyzing}
               >
                 Analyser avec l&apos;IA
                 <Sparkles className="h-4 w-4" />
               </Button>
             </div>
-          </motion.div>
-        )}
-
-        {step === "analyze" && (
-          <motion.div
-            key="analyze"
-            className="flex flex-col items-center py-16 gap-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <Loader2 className="h-10 w-10 animate-spin text-primary-700" />
-            <p className="text-sm font-semibold text-neutral-800">Gemini structure votre accord…</p>
           </motion.div>
         )}
 
@@ -335,6 +341,7 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </div>
   );
 }

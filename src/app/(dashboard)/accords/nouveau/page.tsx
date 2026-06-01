@@ -4,6 +4,7 @@ import { CreateAccordTabs } from "@/components/accord/create-accord-tabs";
 import { QuotaBanner } from "@/components/accord/quota-banner";
 import { OnlineGuard } from "@/components/pwa/online-guard";
 import { getAccordQuota } from "@/lib/accord-quota";
+import { isVoiceFeaturesEnabled } from "@/lib/features";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -28,8 +29,7 @@ export default async function NouvelAccordPage() {
             Initier un accord.
           </h1>
           <p className="text-base text-neutral-500 font-medium">
-            Décrivez votre accord à la voix ou remplissez le formulaire — l&apos;IA structure
-            votre déclaration avant envoi.
+            Suivez les étapes pour créer une preuve numérique certifiée.
           </p>
         </div>
       </div>
@@ -41,10 +41,7 @@ export default async function NouvelAccordPage() {
             <CreateAccordTabs
               initiateurName={session.user.name ?? "Utilisateur"}
               initiateurEmail={session.user.email ?? ""}
-              voiceEnabled={
-                Boolean(process.env.GEMINI_API_KEY) ||
-                Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY)
-              }
+              voiceEnabled={isVoiceFeaturesEnabled()}
             />
           </OnlineGuard>
         ) : null}

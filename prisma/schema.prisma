@@ -98,6 +98,37 @@ model Accord {
   destinataire    User?        @relation("Destinataire", fields: [destinataireId], references: [id])
   historique      AccordEvent[]
   voiceSessions   VoiceSignatureSession[]
+  partySessions   AccordPartySession[]
+}
+
+model AccordPartySession {
+  id              String              @id @default(cuid())
+  sessionId       String              @unique @default(cuid())
+  accordId        String
+  role            String              @default("DESTINATAIRE")
+  status          PartySessionStatus  @default(IN_PROGRESS)
+  currentStep     Int                 @default(1)
+  confirmedName   String?
+  confirmedEmail  String?
+  fieldResponses  Json                @default("{}")
+  signatureName   String?
+  cguAcceptedAt   DateTime?
+  consentAt       DateTime?
+  expiresAt       DateTime
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  accord Accord @relation(fields: [accordId], references: [id], onDelete: Cascade)
+
+  @@index([accordId])
+  @@index([expiresAt])
+}
+
+enum PartySessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  EXPIRED
 }
 
 model VoiceSignatureSession {

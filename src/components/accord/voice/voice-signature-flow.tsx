@@ -27,9 +27,9 @@ export type VoiceAccordProps = {
   reference: string;
 };
 
-type Step = "intent" | "consent" | "record" | "analyze" | "complete" | "confirm";
+type Step = "intent" | "consent" | "record" | "complete" | "confirm";
 
-const STEPS: Step[] = ["intent", "consent", "record", "analyze", "complete", "confirm"];
+const STEPS: Step[] = ["intent", "consent", "record", "complete", "confirm"];
 
 export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }: VoiceAccordProps) {
   const router = useRouter();
@@ -40,6 +40,7 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
   const [manualText, setManualText] = useState("");
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const media = useMediaRecorder();
@@ -63,34 +64,39 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
   const analyze = useCallback(
     async (answers?: Record<string, string>) => {
       if (!intent) return;
-      setStep("analyze");
+      setAnalyzing(true);
       setError("");
 
-      const res = await fetch(`/api/accords/${token}/voice/extract`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transcript: finalTranscript,
-          intent,
-          sessionId: session?.sessionId,
-          textAnswers: answers,
-        }),
-      });
+      try {
+        const res = await fetch(`/api/accords/${token}/voice/extract`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transcript: finalTranscript,
+            intent,
+            sessionId: session?.sessionId,
+            textAnswers: answers,
+          }),
+        });
 
-      const json = await res.json();
-      if (!res.ok) {
-        setError(json.error?.message ?? "Analyse impossible");
-        setStep("record");
-        return;
-      }
+        const json = await res.json();
+        if (!res.ok) {
+          setError(json.error?.message ?? "Analyse impossible");
+          return;
+        }
 
-      const data = json.data as VoiceSessionPayload;
-      setSession(data);
+        const data = json.data as VoiceSessionPayload;
+        setSession(data);
 
-      if (data.ready) {
-        setStep("confirm");
-      } else {
-        setStep("complete");
+        if (data.ready) {
+          setStep("confirm");
+        } else {
+          setStep("complete");
+        }
+      } catch {
+        setError("Erreur réseau pendant l'analyse.");
+      } finally {
+        setAnalyzing(false);
       }
     },
     [intent, token, finalTranscript, session?.sessionId]
@@ -188,6 +194,14 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
         </div>
       )}
 
+      {analyzing && (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-primary-100 bg-primary-50/50 py-10">
+          <Loader2 className="h-9 w-9 animate-spin text-primary-700" />
+          <p className="text-sm font-semibold text-neutral-800">Analyse par Gemini…</p>
+        </div>
+      )}
+
+      {!analyzing && (
       <AnimatePresence mode="wait">
         {step === "intent" && (
           <motion.div
@@ -284,7 +298,7 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="space-y-4"
+            className="relative space-y-4"
           >
             <p className="text-sm text-neutral-600 leading-relaxed">
               {intent === "accept" ? (
@@ -316,25 +330,13 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
               <Button
                 className="flex-1"
                 onClick={handleRecordNext}
-                disabled={media.recording || !finalTranscript}
+                disabled={media.recording || !finalTranscript || analyzing}
+                loading={analyzing}
               >
                 Analyser ma déclaration
                 <Sparkles className="h-4 w-4" />
               </Button>
             </div>
-          </motion.div>
-        )}
-
-        {step === "analyze" && (
-          <motion.div
-            key="analyze"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-16 gap-4"
-          >
-            <Loader2 className="h-10 w-10 animate-spin text-primary-700" />
-            <p className="text-sm font-semibold text-neutral-800">Analyse par Gemini…</p>
-            <p className="text-xs text-neutral-500">Extraction de votre consentement et des informations clés</p>
           </motion.div>
         )}
 
@@ -428,6 +430,7 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </div>
   );
 }
