@@ -1,7 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import { WifiOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { OfflineActions } from "./offline-client";
 
 export default function OfflinePage() {
   return (
@@ -18,12 +17,10 @@ export default function OfflinePage() {
       </div>
       <h1 className="text-heading-l text-neutral-900">Vous êtes hors ligne</h1>
       <p className="mt-3 max-w-sm text-sm text-neutral-600">
-        Les pages du tableau de bord déjà visitées peuvent rester accessibles.
-        Reconnectez-vous pour créer ou valider un accord.
+        Les pages du tableau de bord déjà visitées restent consultables en cache.
+        La création et la validation d&apos;accords nécessitent une connexion Internet.
       </p>
-      <Button className="mt-8" asChild>
-        <Link href="/">Réessayer</Link>
-      </Button>
+      <OfflineActions />
     </div>
   );
 }

@@ -4,7 +4,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createAccordSchema } from "@/lib/validations/accord";
 import { generateAccordReference } from "@/lib/accord-reference";
-import { FREE_ACCORD_LIMIT, INVITE_EXPIRY_HOURS } from "@/lib/constants";
+import { INVITE_EXPIRY_HOURS } from "@/lib/constants";
+import { getAccordQuota, quotaExceededMessage } from "@/lib/accord-quota";
 import { accordInviteEmail } from "@/lib/email-templates";
 import { sendTransactionalEmail } from "@/lib/resend";
 
@@ -41,27 +42,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: { message: "Utilisateur introuvable" } }, { status: 404 });
     }
 
-    const plan = user.subscription?.plan ?? "FREE";
-    const limit =
-      plan === "FREE"
-        ? FREE_ACCORD_LIMIT
-        : plan === "STARTER"
-          ? 20
-          : plan === "PRO"
-            ? 100
-            : 9999;
+    const quota = await getAccordQuota(session.user.id);
 
-    if (user.freeAccordsUsed >= limit && plan === "FREE") {
+    if (!quota.canCreate) {
       return NextResponse.json(
         {
           error: {
             code: "QUOTA_EXCEEDED",
-            message: "Limite d'accords gratuits atteinte. Passez à un plan payant.",
+            message: quotaExceededMessage(quota),
+            quota,
           },
         },
         { status: 403 }
       );
     }
+
+    const plan = quota.plan;
 
     const reference = await generateAccordReference();
     const inviteExpiresAt = addHours(new Date(), INVITE_EXPIRY_HOURS);
@@ -102,7 +98,7 @@ export async function POST(req: Request) {
     if (plan === "FREE") {
       await prisma.user.update({
         where: { id: session.user.id },
-        data: { freeAccordsUsed: { increment: 1 } },
+        data: { freeAccordsUsed: quota.used + 1 },
       });
     }
 

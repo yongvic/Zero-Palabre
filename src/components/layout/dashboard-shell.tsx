@@ -17,6 +17,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { OfflineBanner } from "@/components/pwa/offline-banner";
 
 const nav = [
   { href: "/accords", label: "Mes accords", icon: FileText },
@@ -192,6 +193,7 @@ export function DashboardShell({
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
+        <OfflineBanner />
         <header className="flex h-16 items-center justify-between border-b border-neutral-200 bg-neutral-0/80 px-4 backdrop-blur-md lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}

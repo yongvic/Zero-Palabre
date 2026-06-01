@@ -5,7 +5,7 @@
 | Phase | Fichiers | Comportement |
 |-------|----------|--------------|
 | **1** | `src/app/manifest.ts`, `public/sw.js`, `PwaProvider` | Installable, `standalone`, SW léger (shell offline uniquement) |
-| **2** | `public/sw.js` (runtime), `src/lib/pwa/push.ts` | Cache dashboard NetworkFirst, assets SWR, push (VAPID) |
+| **2** | `public/sw.js` (runtime), `OfflineBanner`, `OnlineGuard`, `src/lib/pwa/push.ts` | Mode hors ligne dashboard, cache pages visitées, push (VAPID) |
 
 Pas de **Serwist / precache webpack** : évite la surcharge mémoire au build (`Array buffer allocation failed`).
 
@@ -15,6 +15,31 @@ Pas de **Serwist / precache webpack** : évite la surcharge mémoire au build (`
 2. Chrome → DevTools → **Application** → Manifest / Service Workers
 3. Android : bannière « Installer » ou `/installer`
 4. iOS : Safari → Partager → Sur l’écran d’accueil
+
+## Phase 2 — Mode hors ligne
+
+### Comportement
+
+| Contexte | Hors ligne |
+|----------|------------|
+| Pages dashboard déjà visitées (`/accords`, `/profil`, …) | Affichage depuis le cache (dernière visite) |
+| `/api/*` | Jamais mis en cache — pas de fausses données |
+| Créer un accord | Bloqué (`OnlineGuard`) + bannière ambre |
+| Assets `/_next/static` | Cache SWR (max 80 entrées) |
+
+### Tester
+
+1. `npm run build && npm start` (HTTPS ou localhost)
+2. Se connecter, visiter `/accords` et `/profil`
+3. DevTools → **Network** → cocher **Offline**
+4. Recharger `/accords` → page en cache + bannière « Mode hors ligne »
+
+### Fichiers
+
+- `public/sw.js` — caches `zp-dashboard-v2`, `zp-assets-v2`
+- `src/components/pwa/offline-banner.tsx`
+- `src/components/pwa/online-guard.tsx`
+- `src/hooks/use-online-status.ts`
 
 ## Phase 2 — Notifications push
 

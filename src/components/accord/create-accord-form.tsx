@@ -49,6 +49,10 @@ export function CreateAccordForm({
   });
 
   async function submit() {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setError("Connexion Internet requise pour envoyer un accord.");
+      return;
+    }
     setLoading(true);
     setError("");
     const res = await fetch("/api/accords", {

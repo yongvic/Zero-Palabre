@@ -1,20 +1,29 @@
 /**
- * Zéro-Palabre — Service Worker léger
- * Phase 1 : installable, pas de precache massif du build Next.js
- * Phase 2 : cache ciblé dashboard (NetworkFirst) + shell offline
+ * Zéro-Palabre — Service Worker
+ * Phase 1 : installable, shell minimal
+ * Phase 2 : mode hors ligne — cache dashboard + assets (sans precache webpack)
  */
 
-const CACHE_SHELL = "zp-shell-v1";
-const CACHE_DASHBOARD = "zp-dashboard-v1";
-const CACHE_ASSETS = "zp-assets-v1";
+const CACHE_SHELL = "zp-shell-v2";
+const CACHE_DASHBOARD = "zp-dashboard-v2";
+const CACHE_ASSETS = "zp-assets-v2";
+
+const MAX_DASHBOARD_PAGES = 24;
+const MAX_ASSET_ENTRIES = 80;
 
 const SHELL_URLS = [
   "/offline",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/brand/logo-vert.png",
 ];
 
-const DASHBOARD_PREFIXES = ["/accords", "/profil", "/abonnement", "/tableau-de-bord"];
+const DASHBOARD_PREFIXES = [
+  "/accords",
+  "/profil",
+  "/abonnement",
+  "/tableau-de-bord",
+];
 
 function isDashboardNavigation(url) {
   return DASHBOARD_PREFIXES.some(
@@ -23,7 +32,15 @@ function isDashboardNavigation(url) {
 }
 
 function isStaticAsset(request) {
-  return ["style", "script", "font", "image"].includes(request.destination);
+  const path = new URL(request.url).pathname;
+  return (
+    ["style", "script", "font", "image"].includes(request.destination) ||
+    path.startsWith("/_next/static/")
+  );
+}
+
+function isApiRequest(url) {
+  return url.pathname.startsWith("/api/");
 }
 
 self.addEventListener("install", (event) => {
@@ -41,13 +58,7 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter(
-            (key) =>
-              key.startsWith("zp-") &&
-              key !== CACHE_SHELL &&
-              key !== CACHE_DASHBOARD &&
-              key !== CACHE_ASSETS
-          )
+          .filter((key) => key.startsWith("zp-") && !key.endsWith("-v2"))
           .map((key) => caches.delete(key))
       );
       await self.clients.claim();
@@ -62,27 +73,39 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // API : toujours réseau (pas de cache trompeur)
+  if (isApiRequest(url)) return;
+
   if (request.mode === "navigate" && isDashboardNavigation(url)) {
-    event.respondWith(networkFirst(request, CACHE_DASHBOARD));
+    event.respondWith(networkFirstDashboard(request));
     return;
   }
 
   if (isStaticAsset(request)) {
-    event.respondWith(staleWhileRevalidate(request, CACHE_ASSETS));
+    event.respondWith(staleWhileRevalidate(request, CACHE_ASSETS, MAX_ASSET_ENTRIES));
     return;
   }
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/offline"))
+      fetch(request).catch(() => offlineNavigationFallback())
     );
   }
 });
 
-/** Phase 2 — préparation notifications push (VAPID à configurer) */
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+/** Phase 2 — notifications push (VAPID requis côté serveur) */
 self.addEventListener("push", (event) => {
   if (!event.data) return;
-  let payload = { title: "Zéro-Palabre", body: "Nouvelle activité sur vos accords." };
+  let payload = {
+    title: "Zéro-Palabre",
+    body: "Nouvelle activité sur vos accords.",
+  };
   try {
     payload = { ...payload, ...event.data.json() };
   } catch {
@@ -105,8 +128,8 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clients) => {
-        for (const client of clients) {
+      .then((clientList) => {
+        for (const client of clientList) {
           if (client.url.includes(target) && "focus" in client) {
             return client.focus();
           }
@@ -116,33 +139,62 @@ self.addEventListener("notificationclick", (event) => {
   );
 });
 
-async function networkFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
+async function networkFirstDashboard(request) {
+  const cache = await caches.open(CACHE_DASHBOARD);
   try {
     const response = await fetch(request);
     if (response.ok) {
-      cache.put(request, response.clone());
+      await cache.put(request, response.clone());
+      await trimCache(CACHE_DASHBOARD, MAX_DASHBOARD_PAGES);
+      notifyClients({ type: "ONLINE" });
     }
     return response;
   } catch {
+    notifyClients({ type: "OFFLINE" });
     const cached = await cache.match(request);
     if (cached) return cached;
-    if (request.mode === "navigate") {
-      const offline = await caches.match("/offline");
-      if (offline) return offline;
+    const accordsList = await cache.match("/accords");
+    if (accordsList && request.url !== accordsList.url) {
+      return accordsList;
     }
-    throw new Error("offline");
+    return offlineNavigationFallback();
   }
 }
 
-async function staleWhileRevalidate(request, cacheName) {
+async function offlineNavigationFallback() {
+  const offline = await caches.match("/offline");
+  if (offline) return offline;
+  return new Response("Hors ligne", {
+    status: 503,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
+async function staleWhileRevalidate(request, cacheName, maxEntries) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   const fetchPromise = fetch(request)
-    .then((response) => {
-      if (response.ok) cache.put(request, response.clone());
+    .then(async (response) => {
+      if (response.ok) {
+        await cache.put(request, response.clone());
+        await trimCache(cacheName, maxEntries);
+      }
       return response;
     })
     .catch(() => null);
   return cached || (await fetchPromise) || fetch(request);
+}
+
+async function trimCache(cacheName, maxEntries) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length <= maxEntries) return;
+  const excess = keys.length - maxEntries;
+  await Promise.all(keys.slice(0, excess).map((key) => cache.delete(key)));
+}
+
+function notifyClients(message) {
+  self.clients.matchAll({ type: "window" }).then((clients) => {
+    clients.forEach((client) => client.postMessage(message));
+  });
 }

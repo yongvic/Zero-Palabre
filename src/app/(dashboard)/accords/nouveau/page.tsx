@@ -1,10 +1,17 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { CreateAccordForm } from "@/components/accord/create-accord-form";
+import { QuotaBanner } from "@/components/accord/quota-banner";
+import { OnlineGuard } from "@/components/pwa/online-guard";
+import { getAccordQuota } from "@/lib/accord-quota";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function NouvelAccordPage() {
   const session = await auth();
+  if (!session?.user?.id) redirect("/connexion");
+
+  const quota = await getAccordQuota(session.user.id);
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
@@ -27,10 +34,15 @@ export default async function NouvelAccordPage() {
       </div>
 
       <div className="rounded-[2.5rem] border border-neutral-200 bg-neutral-0 p-6 md:p-10 shadow-premium">
-        <CreateAccordForm
-          initiateurName={session!.user!.name ?? "Utilisateur"}
-          initiateurEmail={session!.user!.email ?? ""}
-        />
+        <QuotaBanner quota={quota} />
+        {quota.canCreate ? (
+          <OnlineGuard action="La création d'un accord">
+            <CreateAccordForm
+              initiateurName={session.user.name ?? "Utilisateur"}
+              initiateurEmail={session.user.email ?? ""}
+            />
+          </OnlineGuard>
+        ) : null}
       </div>
     </div>
   );

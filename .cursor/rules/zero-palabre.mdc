@@ -30,7 +30,7 @@ Plateforme de preuve numérique d'accords (Togo / Afrique de l'Ouest).
 ## PWA
 
 - Manifest : `src/app/manifest.ts` · SW : `public/sw.js` (léger, pas de precache massif)
-- Doc : `docs/PWA.md` · Page aide : `/installer`
+- Doc : `docs/PWA.md` · Page aide : `/installer` · Offline phase 2 : `OfflineBanner`, `OnlineGuard`
 
 ## Structure
 
