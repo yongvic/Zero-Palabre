@@ -1,4 +1,4 @@
-import { deepseekChat } from "@/lib/deepseek/client";
+import { geminiChat } from "@/lib/gemini/client";
 import { accordDraftExtractionSchema, type AccordDraftExtraction } from "./types";
 
 export type InitiateurContext = {
@@ -49,7 +49,7 @@ export async function extractAccordFromTranscript(
       ? `\n\nDéclarations précédentes :\n${priorTranscripts.map((t, i) => `${i + 1}. ${t}`).join("\n")}`
       : "";
 
-  const raw = await deepseekChat(
+  const raw = await geminiChat(
     [
       { role: "system", content: buildSystemPrompt(initiateur) },
       {

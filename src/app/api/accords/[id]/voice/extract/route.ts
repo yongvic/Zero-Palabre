@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import {
-  DeepSeekApiError,
-  deepSeekUserMessage,
-  isDeepSeekConfigured,
-} from "@/lib/deepseek/client";
-import { ZodError } from "zod";
+import { isGeminiConfigured, GeminiApiError, geminiUserMessage } from "@/lib/gemini/client";
 import { findAccordForVoice } from "@/lib/voice-signature/accord-route";
 import {
   accordToVoiceContext,
   processVoiceTranscript,
 } from "@/lib/voice-signature/session";
 import { voiceIntentSchema } from "@/lib/voice-signature/types";
+import { z } from "zod";
 
 const bodySchema = z.object({
   transcript: z.string().min(1).max(8000),
@@ -24,13 +19,13 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  if (!isDeepSeekConfigured()) {
+  if (!isGeminiConfigured()) {
     return NextResponse.json(
       {
         error: {
-          code: "DEEPSEEK_NOT_CONFIGURED",
+          code: "GEMINI_NOT_CONFIGURED",
           message:
-            "La signature vocale nécessite DEEPSEEK_API_KEY dans les variables d'environnement.",
+            "La signature vocale nécessite GEMINI_API_KEY (Google AI Studio).",
         },
       },
       { status: 503 }
@@ -85,18 +80,18 @@ export async function POST(
         { status: 410 }
       );
     }
-    if (e instanceof DeepSeekApiError) {
+    if (e instanceof GeminiApiError) {
       return NextResponse.json(
         {
           error: {
-            code: "DEEPSEEK_API_ERROR",
-            message: deepSeekUserMessage(e),
+            code: "GEMINI_API_ERROR",
+            message: geminiUserMessage(e),
           },
         },
-        { status: e.status === 402 ? 402 : 502 }
+        { status: e.status >= 400 && e.status < 600 ? e.status : 502 }
       );
     }
-    if (e instanceof ZodError) {
+    if (e instanceof z.ZodError) {
       return NextResponse.json(
         {
           error: {

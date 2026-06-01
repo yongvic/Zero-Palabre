@@ -1,4 +1,4 @@
-import { deepseekChat } from "@/lib/deepseek/client";
+import { geminiChat } from "@/lib/gemini/client";
 import type { VoiceAccordContext, VoiceExtraction } from "./types";
 import { voiceExtractionSchema } from "./types";
 
@@ -45,7 +45,7 @@ export async function extractFromTranscript(
       ? `\n\nTranscriptions précédentes du même destinataire :\n${priorTranscripts.map((t, i) => `${i + 1}. ${t}`).join("\n")}`
       : "";
 
-  const raw = await deepseekChat(
+  const raw = await geminiChat(
     [
       { role: "system", content: buildSystemPrompt(context, intent) },
       {

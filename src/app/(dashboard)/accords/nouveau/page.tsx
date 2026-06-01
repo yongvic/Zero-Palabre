@@ -41,7 +41,10 @@ export default async function NouvelAccordPage() {
             <CreateAccordTabs
               initiateurName={session.user.name ?? "Utilisateur"}
               initiateurEmail={session.user.email ?? ""}
-              voiceEnabled={Boolean(process.env.DEEPSEEK_API_KEY)}
+              voiceEnabled={
+                Boolean(process.env.GEMINI_API_KEY) ||
+                Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY)
+              }
             />
           </OnlineGuard>
         ) : null}

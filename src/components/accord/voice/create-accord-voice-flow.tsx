@@ -200,7 +200,7 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
               <p className="text-sm font-bold text-primary-900 mb-2">Créer un accord à la voix</p>
               <p className="text-xs text-neutral-700 leading-relaxed">
                 Décrivez oralement votre accord : avec qui, pour quoi, combien, quand. L&apos;IA
-                DeepSeek remplit le formulaire pour vous. Vous pourrez tout relire avant l&apos;envoi.
+                Gemini remplit le formulaire pour vous. Vous pourrez tout relire avant l&apos;envoi.
               </p>
               <p className="mt-3 text-xs text-neutral-500">
                 Initiateur : <strong>{initiateurName}</strong> ({initiateurEmail})
@@ -274,7 +274,7 @@ export function CreateAccordVoiceFlow({ initiateurName, initiateurEmail }: Props
             animate={{ opacity: 1 }}
           >
             <Loader2 className="h-10 w-10 animate-spin text-primary-700" />
-            <p className="text-sm font-semibold text-neutral-800">DeepSeek structure votre accord…</p>
+            <p className="text-sm font-semibold text-neutral-800">Gemini structure votre accord…</p>
           </motion.div>
         )}
 

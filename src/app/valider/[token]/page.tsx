@@ -147,14 +147,17 @@ export default async function ValiderPage({
               <h3 className="text-base font-bold text-neutral-900 mb-2">Prendre position sur cette proposition</h3>
               <p className="text-xs text-neutral-500 mb-6 leading-relaxed">
                 Signez par la voix (recommandé) pour une preuve renforcée, ou validez en un clic.
-                L&apos;IA DeepSeek analyse votre déclaration et vous guide si des informations manquent.
+                L&apos;IA Gemini analyse votre déclaration et vous guide si des informations manquent.
               </p>
               <ValidateAccordClient
                 token={accord.publicToken}
                 destinataireNom={accord.destinataireNom}
                 titre={accord.titre}
                 reference={accord.reference}
-                voiceEnabled={Boolean(process.env.DEEPSEEK_API_KEY)}
+                voiceEnabled={
+                  Boolean(process.env.GEMINI_API_KEY) ||
+                  Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY)
+                }
               />
             </>
           ) : (

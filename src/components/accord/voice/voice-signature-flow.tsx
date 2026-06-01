@@ -245,7 +245,7 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
               <ul className="list-disc pl-5 space-y-1 text-xs">
                 <li>Vous êtes invité en tant que <strong>{destinataireNom}</strong></li>
                 <li>Accord : <strong>{titre}</strong> ({reference})</li>
-                <li>Votre voix sera transcrite et analysée par IA (DeepSeek)</li>
+                <li>Votre voix sera transcrite et analysée par IA (Gemini)</li>
                 <li>L&apos;enregistrement peut être archivé comme preuve complémentaire</li>
               </ul>
             </div>
@@ -333,7 +333,7 @@ export function VoiceSignatureFlow({ token, destinataireNom, titre, reference }:
             className="flex flex-col items-center justify-center py-16 gap-4"
           >
             <Loader2 className="h-10 w-10 animate-spin text-primary-700" />
-            <p className="text-sm font-semibold text-neutral-800">Analyse par DeepSeek…</p>
+            <p className="text-sm font-semibold text-neutral-800">Analyse par Gemini…</p>
             <p className="text-xs text-neutral-500">Extraction de votre consentement et des informations clés</p>
           </motion.div>
         )}

@@ -1,38 +1,27 @@
-# Signature vocale — validation destinataire (DeepSeek)
+# Signature vocale — validation destinataire (Gemini)
 
 > Pour **créer** un accord à la voix (initiateur), voir [`VOICE-ACCORD.md`](./VOICE-ACCORD.md).
 
 ## Configuration
 
 ```env
-DEEPSEEK_API_KEY="sk-..."
-DEEPSEEK_MODEL="deepseek-chat"
-# Optionnel
-DEEPSEEK_BASE_URL="https://api.deepseek.com"
-BLOB_READ_WRITE_TOKEN="..."  # archivage audio (Vercel Blob)
+GEMINI_API_KEY="AIza..."
+GEMINI_MODEL="gemini-2.0-flash"
 ```
 
-Clé API : [platform.deepseek.com](https://platform.deepseek.com)
+Clé : [Google AI Studio](https://aistudio.google.com/apikey)
 
-## Parcours utilisateur
+## Parcours
 
 1. `/valider/[token]` → onglet **Signature vocale**
-2. Choix accepter / refuser → consentement RGPD
-3. Enregistrement + transcription navigateur (Web Speech API) ou saisie manuelle
-4. Analyse DeepSeek → extraction JSON (nom, consentement, termes)
-5. Si champs manquants → complément écrit ou nouvel enregistrement
-6. Confirmation → `POST /api/accords/[token]/valider` avec `voiceSessionId`
+2. Enregistrement + transcription navigateur
+3. Analyse Gemini → extraction JSON
+4. Compléments si manquants
+5. Confirmation → `POST /api/accords/[token]/valider`
 
 ## API
 
 | Route | Rôle |
 |-------|------|
-| `POST .../voice/extract` | Transcription → DeepSeek → session |
-| `POST .../voice/audio` | Upload preuve audio (Blob) |
-| `POST .../valider` | Validation + `voiceSessionId` si signature vocale |
-
-## Navigateurs
-
-- Transcription live : Chrome, Edge (desktop)
-- Fallback : saisie manuelle du texte
-- Micro : HTTPS ou localhost
+| `POST .../voice/extract` | Transcription → Gemini → session |
+| `POST .../voice/audio` | Archivage audio (optionnel) |

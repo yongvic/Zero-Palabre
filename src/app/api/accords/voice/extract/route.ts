@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import {
-  DeepSeekApiError,
-  deepSeekUserMessage,
-  isDeepSeekConfigured,
-} from "@/lib/deepseek/client";
-import { ZodError } from "zod";
+  GeminiApiError,
+  geminiUserMessage,
+  isGeminiConfigured,
+} from "@/lib/gemini/client";
 import { processVoiceAccordTranscript } from "@/lib/voice-accord/session";
 
 const bodySchema = z.object({
@@ -21,12 +20,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: { message: "Non autorisé" } }, { status: 401 });
   }
 
-  if (!isDeepSeekConfigured()) {
+  if (!isGeminiConfigured()) {
     return NextResponse.json(
       {
         error: {
-          code: "DEEPSEEK_NOT_CONFIGURED",
-          message: "Ajoutez DEEPSEEK_API_KEY pour créer un accord à la voix.",
+          code: "GEMINI_NOT_CONFIGURED",
+          message:
+            "Ajoutez GEMINI_API_KEY (Google AI Studio) pour créer un accord à la voix.",
         },
       },
       { status: 503 }
@@ -66,25 +66,25 @@ export async function POST(req: Request) {
         { status: 410 }
       );
     }
-    if (e instanceof DeepSeekApiError) {
-      console.error("[accords/voice/extract] DeepSeek", e.status, e.message);
+    if (e instanceof GeminiApiError) {
+      console.error("[accords/voice/extract] Gemini", e.status, e.message);
       return NextResponse.json(
         {
           error: {
-            code: "DEEPSEEK_API_ERROR",
-            message: deepSeekUserMessage(e),
+            code: "GEMINI_API_ERROR",
+            message: geminiUserMessage(e),
           },
         },
-        { status: e.status === 402 ? 402 : 502 }
+        { status: e.status >= 400 && e.status < 600 ? e.status : 502 }
       );
     }
-    if (e instanceof ZodError) {
+    if (e instanceof z.ZodError) {
       console.error("[accords/voice/extract] Zod", e.flatten());
       return NextResponse.json(
         {
           error: {
             message:
-              "L'IA n'a pas renvoyé un format exploitable. Réessayez en parlant plus clairement (destinataire, montant, objet).",
+              "L'IA n'a pas renvoyé un format exploitable. Réessayez en parlant plus clairement.",
           },
         },
         { status: 422 }
