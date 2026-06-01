@@ -146,9 +146,16 @@ export default async function ValiderPage({
             <>
               <h3 className="text-base font-bold text-neutral-900 mb-2">Prendre position sur cette proposition</h3>
               <p className="text-xs text-neutral-500 mb-6 leading-relaxed">
-                Vous pouvez accepter d&apos;un clic ou refuser le cas échéant. Vous avez la possibilité d&apos;ajouter un commentaire explicatif pour motiver un refus ou préciser des termes.
+                Signez par la voix (recommandé) pour une preuve renforcée, ou validez en un clic.
+                L&apos;IA DeepSeek analyse votre déclaration et vous guide si des informations manquent.
               </p>
-              <ValidateAccordClient token={accord.publicToken} />
+              <ValidateAccordClient
+                token={accord.publicToken}
+                destinataireNom={accord.destinataireNom}
+                titre={accord.titre}
+                reference={accord.reference}
+                voiceEnabled={Boolean(process.env.DEEPSEEK_API_KEY)}
+              />
             </>
           ) : (
             <div className="text-center py-6">

@@ -31,6 +31,7 @@ export const createAccordSchema = z.object({
 export const validateAccordSchema = z.object({
   action: z.enum(["accept", "reject"]),
   commentaire: z.string().max(500).optional(),
+  voiceSessionId: z.string().min(1).optional(),
 });
 
 export type CreateAccordInput = z.infer<typeof createAccordSchema>;

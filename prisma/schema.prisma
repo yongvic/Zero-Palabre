@@ -96,6 +96,34 @@ model Accord {
   initiateur      User         @relation("Initiateur", fields: [initiateurId], references: [id])
   destinataire    User?        @relation("Destinataire", fields: [destinataireId], references: [id])
   historique      AccordEvent[]
+  voiceSessions   VoiceSignatureSession[]
+}
+
+model VoiceSignatureSession {
+  id            String               @id @default(cuid())
+  sessionId     String               @unique @default(cuid())
+  accordId      String
+  intent        String?
+  transcripts   Json                 @default("[]")
+  extracted     Json?
+  missingFields Json                 @default("[]")
+  audioUrls     Json                 @default("[]")
+  status        VoiceSessionStatus   @default(IN_PROGRESS)
+  expiresAt     DateTime
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  accord Accord @relation(fields: [accordId], references: [id], onDelete: Cascade)
+
+  @@index([accordId])
+  @@index([expiresAt])
+}
+
+enum VoiceSessionStatus {
+  IN_PROGRESS
+  READY
+  APPLIED
+  EXPIRED
 }
 
 model AccordEvent {

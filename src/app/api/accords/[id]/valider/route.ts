@@ -5,6 +5,12 @@ import { hashAccordContent } from "@/lib/accord-hash";
 import { updateReliabilityScore } from "@/lib/reliability";
 import { accordValidatedEmail } from "@/lib/email-templates";
 import { sendTransactionalEmail } from "@/lib/resend";
+import {
+  assertVoiceSessionReady,
+  markVoiceSessionApplied,
+} from "@/lib/voice-signature/session";
+import type { VoiceExtraction } from "@/lib/voice-signature/types";
+import type { Prisma } from "@prisma/client";
 
 export async function POST(
   req: Request,
@@ -12,7 +18,7 @@ export async function POST(
 ) {
   try {
     const body = await req.json();
-    const { action, commentaire } = validateAccordSchema.parse(body);
+    const { action, commentaire, voiceSessionId } = validateAccordSchema.parse(body);
 
     const accord = await prisma.accord.findUnique({
       where: { publicToken: params.id },
@@ -38,16 +44,57 @@ export async function POST(
       return NextResponse.json({ error: { message: "Lien expiré" } }, { status: 410 });
     }
 
+    let voiceMeta: Prisma.InputJsonValue | undefined;
+    let voiceSummaryFr: string | undefined;
+
+    if (voiceSessionId) {
+      try {
+        const session = await assertVoiceSessionReady(
+          voiceSessionId,
+          accord.id,
+          action === "accept" ? "accept" : "reject"
+        );
+        const extracted = session.extracted as VoiceExtraction | null;
+        voiceSummaryFr = extracted?.summaryFr ?? undefined;
+        voiceMeta = {
+          voiceSessionId: session.sessionId,
+          signerName: extracted?.signerName ?? null,
+          summaryFr: extracted?.summaryFr ?? null,
+          transcripts: session.transcripts,
+          audioUrls: session.audioUrls,
+        } as Prisma.InputJsonValue;
+        await markVoiceSessionApplied(voiceSessionId);
+      } catch (e) {
+        const code = e instanceof Error ? e.message : "";
+        const messages: Record<string, string> = {
+          SESSION_NOT_FOUND: "Session vocale introuvable.",
+          SESSION_EXPIRED: "Session vocale expirée. Recommencez la signature.",
+          SESSION_NOT_READY: "Informations vocales incomplètes. Complétez les champs demandés.",
+          SESSION_INTENT_MISMATCH: "La session vocale ne correspond pas à cette action.",
+        };
+        return NextResponse.json(
+          { error: { message: messages[code] ?? "Signature vocale invalide." } },
+          { status: 400 }
+        );
+      }
+    }
+
     if (action === "reject") {
+      const finalComment = commentaire ?? voiceSummaryFr ?? "Accord refusé.";
+
       const updated = await prisma.accord.update({
         where: { id: accord.id },
         data: {
           statut: "REJECTED",
-          commentaireRefus: commentaire,
+          commentaireRefus: finalComment,
         },
       });
       await prisma.accordEvent.create({
-        data: { accordId: accord.id, type: "REJECTED", metadata: { commentaire } },
+        data: {
+          accordId: accord.id,
+          type: "REJECTED",
+          metadata: { commentaire: finalComment, voice: voiceMeta } as Prisma.InputJsonValue,
+        },
       });
       return NextResponse.json({ data: updated });
     }
@@ -68,8 +115,24 @@ export async function POST(
     });
 
     await prisma.accordEvent.create({
-      data: { accordId: accord.id, type: "ACCEPTED" },
+      data: {
+        accordId: accord.id,
+        type: "ACCEPTED",
+        metadata: voiceMeta
+          ? ({ voice: voiceMeta } as Prisma.InputJsonValue)
+          : undefined,
+      },
     });
+
+    if (voiceSessionId) {
+      await prisma.accordEvent.create({
+        data: {
+          accordId: accord.id,
+          type: "VOICE_SIGNATURE",
+          metadata: voiceMeta,
+        },
+      });
+    }
 
     await updateReliabilityScore(accord.initiateurId, "ACCEPTED");
 
