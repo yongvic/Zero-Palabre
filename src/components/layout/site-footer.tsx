@@ -40,6 +40,7 @@ export function SiteFooter() {
                 <li><Link href="#fonctionnalites" className="hover:text-primary-700 transition-colors">Fonctionnalités</Link></li>
                 <li><Link href="#tarifs" className="hover:text-primary-700 transition-colors">Tarifs & Offres</Link></li>
                 <li><Link href="/verifier" className="hover:text-primary-700 transition-colors">Vérifier un PDF</Link></li>
+                <li><Link href="/installer" className="hover:text-primary-700 transition-colors">Installer l&apos;app</Link></li>
               </ul>
             </div>
             <div className="space-y-6">

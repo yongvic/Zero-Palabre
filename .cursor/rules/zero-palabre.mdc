@@ -27,6 +27,11 @@ Plateforme de preuve numérique d'accords (Togo / Afrique de l'Ouest).
 - Placeholder seul sans label visible
 - Modifier un accord validé
 
+## PWA
+
+- Manifest : `src/app/manifest.ts` · SW : `public/sw.js` (léger, pas de precache massif)
+- Doc : `docs/PWA.md` · Page aide : `/installer`
+
 ## Structure
 
 - `src/components/ui/` — primitives
