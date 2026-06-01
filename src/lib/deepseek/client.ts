@@ -8,8 +8,36 @@ export type DeepSeekMessage = {
 
 type ChatCompletionResponse = {
   choices?: Array<{ message?: { content?: string } }>;
-  error?: { message?: string };
+  error?: { message?: string; code?: string };
 };
+
+export class DeepSeekApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string
+  ) {
+    super(message);
+    this.name = "DeepSeekApiError";
+  }
+}
+
+/** Message utilisateur lisible selon la réponse DeepSeek */
+export function deepSeekUserMessage(err: DeepSeekApiError): string {
+  if (err.status === 402 || /insufficient balance/i.test(err.message)) {
+    return "Solde DeepSeek insuffisant. Rechargez votre compte sur platform.deepseek.com puis réessayez.";
+  }
+  if (err.status === 401 || /invalid.*api.*key/i.test(err.message)) {
+    return "Clé API DeepSeek invalide. Vérifiez DEEPSEEK_API_KEY dans votre fichier .env.";
+  }
+  if (err.status === 429) {
+    return "Trop de requêtes DeepSeek. Patientez une minute et réessayez.";
+  }
+  if (err.status === 400 && /model/i.test(err.message)) {
+    return `Modèle DeepSeek invalide (${process.env.DEEPSEEK_MODEL ?? "deepseek-chat"}). Essayez DEEPSEEK_MODEL=deepseek-chat dans .env.`;
+  }
+  return `DeepSeek : ${err.message}`;
+}
 
 export function isDeepSeekConfigured(): boolean {
   return Boolean(process.env.DEEPSEEK_API_KEY?.trim());
@@ -45,7 +73,7 @@ export async function deepseekChat(
 
   if (!res.ok) {
     const msg = data.error?.message ?? `DeepSeek HTTP ${res.status}`;
-    throw new Error(msg);
+    throw new DeepSeekApiError(msg, res.status, data.error?.code);
   }
 
   const content = data.choices?.[0]?.message?.content;

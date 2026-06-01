@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isDeepSeekConfigured } from "@/lib/deepseek/client";
+import {
+  DeepSeekApiError,
+  deepSeekUserMessage,
+  isDeepSeekConfigured,
+} from "@/lib/deepseek/client";
+import { ZodError } from "zod";
 import { findAccordForVoice } from "@/lib/voice-signature/accord-route";
 import {
   accordToVoiceContext,
@@ -80,9 +85,36 @@ export async function POST(
         { status: 410 }
       );
     }
+    if (e instanceof DeepSeekApiError) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "DEEPSEEK_API_ERROR",
+            message: deepSeekUserMessage(e),
+          },
+        },
+        { status: e.status === 402 ? 402 : 502 }
+      );
+    }
+    if (e instanceof ZodError) {
+      return NextResponse.json(
+        {
+          error: {
+            message:
+              "Format de réponse IA invalide. Réessayez en reformulant votre déclaration.",
+          },
+        },
+        { status: 422 }
+      );
+    }
     console.error("[voice/extract]", e);
     return NextResponse.json(
-      { error: { message: "Analyse vocale impossible. Réessayez." } },
+      {
+        error: {
+          message:
+            e instanceof Error ? e.message : "Analyse vocale impossible. Réessayez.",
+        },
+      },
       { status: 500 }
     );
   }

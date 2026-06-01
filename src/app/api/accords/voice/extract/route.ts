@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { isDeepSeekConfigured } from "@/lib/deepseek/client";
+import {
+  DeepSeekApiError,
+  deepSeekUserMessage,
+  isDeepSeekConfigured,
+} from "@/lib/deepseek/client";
+import { ZodError } from "zod";
 import { processVoiceAccordTranscript } from "@/lib/voice-accord/session";
 
 const bodySchema = z.object({
@@ -61,9 +66,40 @@ export async function POST(req: Request) {
         { status: 410 }
       );
     }
+    if (e instanceof DeepSeekApiError) {
+      console.error("[accords/voice/extract] DeepSeek", e.status, e.message);
+      return NextResponse.json(
+        {
+          error: {
+            code: "DEEPSEEK_API_ERROR",
+            message: deepSeekUserMessage(e),
+          },
+        },
+        { status: e.status === 402 ? 402 : 502 }
+      );
+    }
+    if (e instanceof ZodError) {
+      console.error("[accords/voice/extract] Zod", e.flatten());
+      return NextResponse.json(
+        {
+          error: {
+            message:
+              "L'IA n'a pas renvoyé un format exploitable. Réessayez en parlant plus clairement (destinataire, montant, objet).",
+          },
+        },
+        { status: 422 }
+      );
+    }
     console.error("[accords/voice/extract]", e);
     return NextResponse.json(
-      { error: { message: "Analyse impossible. Réessayez." } },
+      {
+        error: {
+          message:
+            e instanceof Error && e.message
+              ? e.message
+              : "Analyse impossible. Réessayez.",
+        },
+      },
       { status: 500 }
     );
   }

@@ -26,6 +26,14 @@
 - `src/lib/voice-accord/*`
 - Modèle Prisma `VoiceAccordDraft`
 
+## Dépannage
+
+| Symptôme | Cause | Action |
+|----------|--------|--------|
+| « Solde DeepSeek insuffisant » | HTTP 402 | Recharger sur [platform.deepseek.com](https://platform.deepseek.com) |
+| « Clé API invalide » | HTTP 401 | Vérifier `DEEPSEEK_API_KEY` dans `.env` et sur Vercel |
+| Test API | — | `node scripts/test-deepseek.mjs` |
+
 ## Distinction
 
 | Fonction | Page |
