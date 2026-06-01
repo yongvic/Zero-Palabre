@@ -24,7 +24,6 @@ import type {
   PartySessionClient,
   PartyTermField,
 } from "@/lib/party-session/types";
-import { cn } from "@/lib/utils";
 
 type Props = {
   token: string;
@@ -51,8 +50,6 @@ export function PartyAccordWizard({ token, initialAccord }: Props) {
   const [verifyUrl, setVerifyUrl] = useState<string | null>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-
-  const skipAmendments = session ? !session.hasAmendments && step > 3 : false;
 
   const loadSession = useCallback(async () => {
     setLoading(true);

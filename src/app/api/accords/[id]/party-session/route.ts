@@ -6,7 +6,6 @@ import { accordToSnapshot, buildTermFields } from "@/lib/party-session/terms";
 import {
   getOrCreatePartySession,
   sessionToClient,
-  getPartySessionBySessionId,
 } from "@/lib/party-session/session";
 import { fieldResponseSchema } from "@/lib/party-session/types";
 import { resolveInviteExpiresAt } from "@/lib/invite-expiry";
