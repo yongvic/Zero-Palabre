@@ -11,6 +11,7 @@ import {
 } from "@/lib/constants";
 import { formatDate, formatDateTime, formatMontant, statutToBadgeVariant } from "@/lib/utils";
 import { Download, ExternalLink, Calendar, User, FileText, ChevronLeft, ShieldCheck } from "lucide-react";
+import { FulfillmentPanel } from "@/components/accord/fulfillment/fulfillment-panel";
 
 export default async function AccordDetailPage({
   params,
@@ -36,8 +37,12 @@ export default async function AccordDetailPage({
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+  const showFulfillment = ["ACCEPTED", "OVERDUE", "HONORED", "DISPUTED"].includes(accord.statut) && accord.montant != null;
+
   return (
     <div className="mx-auto max-w-4xl space-y-10">
+      {showFulfillment && <FulfillmentPanel accordId={accord.id} />}
+
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <Link 
           href="/accords" 
@@ -47,11 +52,19 @@ export default async function AccordDetailPage({
           Retour à la liste
         </Link>
         <div className="flex flex-wrap gap-3">
-          {accord.statut === "ACCEPTED" && (
+          {["ACCEPTED", "HONORED", "OVERDUE"].includes(accord.statut) && (
             <Button variant="secondary" asChild className="rounded-xl shadow-sm">
               <a href={`/api/accords/${accord.id}/pdf`} target="_blank" rel="noopener">
                 <Download className="h-4 w-4 mr-2" strokeWidth={2.5} />
-                Télécharger le PDF
+                Télécharger le PDF accord
+              </a>
+            </Button>
+          )}
+          {accord.statut === "HONORED" && (
+            <Button variant="secondary" asChild className="rounded-xl shadow-sm">
+              <a href={`/api/accords/${accord.id}/pdf/fulfillment`} target="_blank" rel="noopener">
+                <Download className="h-4 w-4 mr-2" strokeWidth={2.5} />
+                Attestation d&apos;exécution
               </a>
             </Button>
           )}
@@ -172,7 +185,9 @@ export default async function AccordDetailPage({
                   )}
                   <div className="absolute left-0 top-1.5 h-4 w-4 rounded-full border-2 border-neutral-200 bg-neutral-0 group-first:border-primary-600 group-first:bg-primary-50" />
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-neutral-900">{ev.type}</p>
+                    <p className="text-sm font-bold text-neutral-900">
+                      {ev.type.replace(/_/g, " ")}
+                    </p>
                     <p className="text-[11px] font-medium text-neutral-500">{formatDateTime(ev.createdAt)}</p>
                   </div>
                 </div>

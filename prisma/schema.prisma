@@ -31,6 +31,7 @@ model User {
   subscription         Subscription?
   reliabilityScore     ReliabilityScore?
   voiceAccordDrafts    VoiceAccordDraft[]
+  fulfillmentsConfirmed AccordFulfillment[] @relation("FulfillmentConfirmedBy")
 }
 
 model Account {
@@ -99,6 +100,7 @@ model Accord {
   historique      AccordEvent[]
   voiceSessions   VoiceSignatureSession[]
   partySessions   AccordPartySession[]
+  fulfillment     AccordFulfillment?
 }
 
 model AccordPartySession {
@@ -184,6 +186,55 @@ enum VoiceDraftStatus {
   EXPIRED
 }
 
+model AccordFulfillment {
+  id              String            @id @default(cuid())
+  accordId        String            @unique
+  fulfillToken    String            @unique @default(cuid())
+  status          FulfillmentStatus @default(PENDING)
+
+  amountDeclared  Decimal?          @db.Decimal(12, 2)
+  paidAt          DateTime?
+  paymentMethod   PaymentMethod?
+  reference       String?
+  proofData       String?           @db.Text
+
+  declaredName    String?
+  declaredEmail   String?
+  declaredAt      DateTime?
+
+  confirmedAt     DateTime?
+  confirmedById   String?
+  rejectedAt      DateTime?
+  rejectReason    String?           @db.Text
+
+  fulfillmentHash String?
+  trustLevel      Int               @default(2)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  accord          Accord            @relation(fields: [accordId], references: [id], onDelete: Cascade)
+  confirmedBy     User?             @relation("FulfillmentConfirmedBy", fields: [confirmedById], references: [id])
+
+  @@index([fulfillToken])
+  @@index([status])
+}
+
+enum FulfillmentStatus {
+  PENDING
+  DECLARED
+  CONFIRMED
+  REJECTED
+}
+
+enum PaymentMethod {
+  TMONEY
+  FLOOZ
+  CASH
+  BANK_TRANSFER
+  OTHER
+}
+
 model AccordEvent {
   id        String   @id @default(cuid())
   accordId  String
@@ -234,6 +285,7 @@ enum AccordStatut {
   ACCEPTED
   REJECTED
   EXPIRED
+  OVERDUE
   HONORED
   DISPUTED
 }

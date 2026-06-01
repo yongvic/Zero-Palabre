@@ -1,11 +1,11 @@
-# Brainstorm — Preuve quand la contrepartie remplit les termes
+# Parcours de prise de position (signature destinataire)
 
-> Vocal désactivé en UI (`VOICE_FEATURES_ENABLED` absent ou ≠ `true`).  
-> Cette spec décrit la **prochaine** fonctionnalité prioritaire.
+> **Exécution post-signature** (remboursement, `HONORED`, litiges) → voir [`EXECUTION-ACCORD.md`](./EXECUTION-ACCORD.md).  
+> Vocal désactivé en UI (`VOICE_FEATURES_ENABLED` absent ou ≠ `true`).
 
-## Problème
+## Problème (phase signature)
 
-Aujourd’hui le destinataire **accepte ou refuse** un texte figé. Il n’y a pas de trace structurée quand il **relit, confirme ou ajuste** chaque terme avant de s’engager.
+Avant ce parcours, le destinataire **acceptait ou refusait** en un clic, sans trace structurée terme par terme.
 
 ## Vision produit
 

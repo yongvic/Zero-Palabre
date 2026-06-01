@@ -24,6 +24,15 @@ interface ProfileEditorProps {
     kycStatus: string;
     subscription?: { plan: string } | null;
     reliabilityScore?: { score: number; honored: number; totalAccords: number } | null;
+    accordBreakdown?: {
+      signed: number;
+      accepted: number;
+      honored: number;
+      inProgress: number;
+      overdue: number;
+      disputed: number;
+      honorRate: number | null;
+    };
   };
 }
 
@@ -133,6 +142,7 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
   const score = user.reliabilityScore?.score ?? 50;
   const honored = user.reliabilityScore?.honored ?? 0;
   const total = user.reliabilityScore?.totalAccords ?? 0;
+  const breakdown = user.accordBreakdown;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -212,17 +222,52 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
       </div>
 
       {/* ── Score de Fiabilité ── */}
-      <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/60 to-white p-6 shadow-sm">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-primary-700">Score de fiabilité</h2>
-        <div className="flex items-end justify-between">
+      <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/60 to-white p-6 shadow-sm space-y-5">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-primary-700">Score de fiabilité</h2>
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-4xl font-bold text-primary-800">{score}<span className="text-xl font-medium text-primary-400">/100</span></p>
-            <p className="mt-1 text-xs text-neutral-500">{honored} accords honorés · {total} au total</p>
+            <p className="text-4xl font-bold text-primary-800">
+              {score}
+              <span className="text-xl font-medium text-primary-400">/100</span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-500">
+              {honored} honorés · {total} événements comptabilisés
+            </p>
           </div>
-          <div className="h-2 w-40 overflow-hidden rounded-full bg-primary-100">
+          <div className="h-2 w-40 shrink-0 overflow-hidden rounded-full bg-primary-100">
             <div className="h-full bg-primary-600 transition-all" style={{ width: `${score}%` }} />
           </div>
         </div>
+        {breakdown && (
+          <dl className="grid grid-cols-2 gap-3 text-sm border-t border-primary-100/80 pt-4">
+            <div>
+              <dt className="text-neutral-500 text-xs">Accords signés</dt>
+              <dd className="font-bold text-neutral-900">{breakdown.signed}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 text-xs">Honorés</dt>
+              <dd className="font-bold text-primary-800">{breakdown.honored}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 text-xs">En cours</dt>
+              <dd className="font-bold text-neutral-900">{breakdown.inProgress}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 text-xs">En retard</dt>
+              <dd className="font-bold text-amber-800">{breakdown.overdue}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 text-xs">Litiges</dt>
+              <dd className="font-bold text-neutral-900">{breakdown.disputed}</dd>
+            </div>
+            {breakdown.honorRate != null && (
+              <div>
+                <dt className="text-neutral-500 text-xs">Taux honorés</dt>
+                <dd className="font-bold text-primary-800">{breakdown.honorRate} %</dd>
+              </div>
+            )}
+          </dl>
+        )}
       </div>
 
       {/* ── Sécurité / Mot de passe ── */}

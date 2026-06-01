@@ -11,6 +11,31 @@ export default async function ProfilPage() {
 
   if (!user) return null;
 
+  const accordStats = await prisma.accord.groupBy({
+    by: ["statut"],
+    where: {
+      OR: [{ initiateurId: user.id }, { destinataireId: user.id }],
+    },
+    _count: { id: true },
+  });
+
+  const countByStatut = Object.fromEntries(
+    accordStats.map((s) => [s.statut, s._count.id])
+  ) as Record<string, number>;
+
+  const accepted = (countByStatut.ACCEPTED ?? 0) + (countByStatut.OVERDUE ?? 0);
+  const honored = countByStatut.HONORED ?? 0;
+  const inProgress = countByStatut.ACCEPTED ?? 0;
+  const overdue = countByStatut.OVERDUE ?? 0;
+  const disputed = countByStatut.DISPUTED ?? 0;
+  const signed =
+    (countByStatut.ACCEPTED ?? 0) +
+    (countByStatut.OVERDUE ?? 0) +
+    (countByStatut.HONORED ?? 0) +
+    (countByStatut.DISPUTED ?? 0);
+  const honorRate =
+    signed > 0 ? Math.round((honored / signed) * 100) : null;
+
   return (
     <ProfileEditor
       user={{
@@ -30,6 +55,15 @@ export default async function ProfilPage() {
               totalAccords: user.reliabilityScore.totalAccords,
             }
           : null,
+        accordBreakdown: {
+          signed,
+          accepted,
+          honored,
+          inProgress,
+          overdue,
+          disputed,
+          honorRate,
+        },
       }}
     />
   );

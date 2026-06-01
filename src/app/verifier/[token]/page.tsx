@@ -23,6 +23,7 @@ import {
   ACCORD_TYPE_LABELS,
 } from "@/lib/constants";
 import { formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
+import { VerifierExecutionBlock } from "@/components/accord/fulfillment/verifier-execution-block";
 
 export default async function VerifierPage({
   params,
@@ -31,7 +32,12 @@ export default async function VerifierPage({
 }) {
   const accord = await prisma.accord.findUnique({
     where: { publicToken: params.token },
-    include: { initiateur: { select: { name: true, email: true } } },
+    include: {
+      initiateur: { select: { name: true, email: true } },
+      fulfillment: {
+        include: { confirmedBy: { select: { name: true, email: true } } },
+      },
+    },
   });
 
   if (!accord) notFound();
@@ -217,6 +223,13 @@ export default async function VerifierPage({
             </div>
           </div>
         </div>
+
+        <VerifierExecutionBlock
+          accordStatut={accord.statut}
+          dateEcheance={accord.dateEcheance}
+          fulfillment={accord.fulfillment}
+          accordId={accord.id}
+        />
 
         {/* Note de réassurance et d&apos;information légale */}
         <p className="text-center text-xs leading-relaxed text-neutral-500 max-w-lg mx-auto">

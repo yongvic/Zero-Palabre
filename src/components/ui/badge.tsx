@@ -14,6 +14,7 @@ const badgeVariants = cva(
         accepted: "border-success-600/20 bg-success-600/10 text-success-600",
         rejected: "border-error-600/20 bg-error-600/10 text-error-600",
         expired: "border-neutral-400/20 bg-neutral-400/10 text-neutral-500",
+        overdue: "border-amber-600/25 bg-amber-500/15 text-amber-800",
         honored: "border-primary-600/20 bg-primary-600/10 text-primary-700",
         disputed: "border-error-600/30 bg-error-600/20 text-error-800",
         default: "border-neutral-200 bg-neutral-100 text-neutral-600",

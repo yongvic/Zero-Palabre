@@ -56,14 +56,15 @@ export function formatDateTime(date: Date | string | null | undefined): string {
   }).format(d);
 }
 
-export function statutToBadgeVariant(statut: string): "default" | "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired" | "honored" | "disputed" {
-  const map: Record<string, "default" | "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired" | "honored" | "disputed"> = {
+export function statutToBadgeVariant(statut: string): "default" | "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired" | "honored" | "disputed" | "overdue" {
+  const map: Record<string, "default" | "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired" | "honored" | "disputed" | "overdue"> = {
     PENDING: "pending",
     SENT: "sent",
     VIEWED: "viewed",
     ACCEPTED: "accepted",
     REJECTED: "rejected",
     EXPIRED: "expired",
+    OVERDUE: "overdue",
     HONORED: "honored",
     DISPUTED: "disputed",
   };

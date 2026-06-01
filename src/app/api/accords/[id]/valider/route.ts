@@ -12,6 +12,7 @@ import {
 import type { VoiceExtraction } from "@/lib/voice-signature/types";
 import type { Prisma } from "@prisma/client";
 import { isInviteExpired } from "@/lib/invite-expiry";
+import { ensureFulfillmentRecord } from "@/lib/fulfillment/record";
 
 export async function POST(
   req: Request,
@@ -136,6 +137,7 @@ export async function POST(
     }
 
     await updateReliabilityScore(accord.initiateurId, "ACCEPTED");
+    await ensureFulfillmentRecord(accord.id);
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 

@@ -30,6 +30,30 @@ export const ACCORD_STATUT_LABELS: Record<string, string> = {
   ACCEPTED: "Validé",
   REJECTED: "Refusé",
   EXPIRED: "Expiré",
+  OVERDUE: "En retard",
   HONORED: "Honoré",
   DISPUTED: "Litige",
+};
+
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  TMONEY: "Tmoney",
+  FLOOZ: "Flooz",
+  CASH: "Espèces",
+  BANK_TRANSFER: "Virement bancaire",
+  OTHER: "Autre",
+};
+
+export const EVENT_TYPE_LABELS: Record<string, string> = {
+  CREATED: "Accord créé",
+  SENT: "Invitation envoyée",
+  VIEWED: "Document consulté",
+  ACCEPTED: "Accord accepté",
+  REJECTED: "Accord refusé",
+  OVERDUE_MARKED: "Échéance dépassée",
+  FULFILLMENT_DECLARED: "Remboursement déclaré",
+  FULFILLMENT_CONFIRMED: "Remboursement confirmé",
+  FULFILLMENT_REJECTED: "Déclaration refusée",
+  HONORED: "Accord honoré",
+  DISPUTED: "Litige ouvert",
+  PARTY_SESSION_COMPLETED: "Parcours terminé",
 };

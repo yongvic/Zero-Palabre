@@ -9,6 +9,7 @@ import {
   markPartySessionCompleted,
   fieldResponsesToJson,
 } from "./session";
+import { ensureFulfillmentRecord } from "@/lib/fulfillment/record";
 
 export async function completePartySession(params: {
   sessionId: string;
@@ -53,6 +54,7 @@ export async function completePartySession(params: {
   });
 
   await markPartySessionCompleted(session.sessionId);
+  await ensureFulfillmentRecord(accord.id);
 
   const events: Prisma.AccordEventCreateManyInput[] = [
     { accordId: accord.id, type: "PARTY_IDENTIFIED", metadata: { name: session.confirmedName, email: session.confirmedEmail } },

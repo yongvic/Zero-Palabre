@@ -22,7 +22,7 @@ export async function GET(
         { initiateurId: session.user.id },
         { destinataireId: session.user.id },
       ],
-      statut: "ACCEPTED",
+      statut: { in: ["ACCEPTED", "HONORED", "OVERDUE", "DISPUTED"] },
     },
     include: { initiateur: true },
   });

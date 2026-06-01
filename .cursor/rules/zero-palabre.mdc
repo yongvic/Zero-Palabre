@@ -32,7 +32,8 @@ Plateforme de preuve numérique d'accords (Togo / Afrique de l'Ouest).
 - Manifest : `src/app/manifest.ts` · SW : `public/sw.js` (léger, pas de precache massif)
 - Doc : `docs/PWA.md` · Page aide : `/installer` · Offline phase 2 : `OfflineBanner`, `OnlineGuard`
 - Vocal (UI off par défaut) : `VOICE_FEATURES_ENABLED=true` · `docs/VOICE-ACCORD.md`
-- Parcours destinataire : `docs/CONTREPARTIE-PREUVE.md` · `/valider/[token]` · `PartyAccordWizard`
+- Signature destinataire : `docs/CONTREPARTIE-PREUVE.md` · `/valider/[token]`
+- Exécution (remboursement) : `docs/EXECUTION-ACCORD.md` · `/executer/[token]` · double confirmation
 
 ## Structure
 
