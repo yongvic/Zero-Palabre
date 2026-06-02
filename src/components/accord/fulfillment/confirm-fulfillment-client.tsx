@@ -75,11 +75,11 @@ export function ConfirmFulfillmentClient(props: Props) {
         <CheckCircle className="h-16 w-16 text-primary-700 mx-auto animate-pulse" />
         <h2 className="text-xl font-bold text-neutral-900">Accord honore</h2>
         <p className="text-sm text-neutral-600">
-          Merci d'avoir confirme. L'attestation d'execution est disponible.
+          Merci d&apos;avoir confirme. L&apos;attestation d&apos;execution est disponible.
         </p>
         <Button asChild>
           <a href={`/api/accords/${props.accordId}/pdf/fulfillment`} target="_blank" rel="noopener">
-            Telecharger l'attestation
+            Telecharger l&apos;attestation
           </a>
         </Button>
       </div>

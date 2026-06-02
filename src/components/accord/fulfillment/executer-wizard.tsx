@@ -307,7 +307,7 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
               </p>
             </div>
             <p className="text-xs text-neutral-500 leading-relaxed">
-              En validant, vous certifiez sur l'honneur que ces informations sont exactes.
+              En validant, vous certifiez sur l&apos;honneur que ces informations sont exactes.
               Le creancier devra confirmer la reception.
             </p>
             <div className="flex gap-2">

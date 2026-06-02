@@ -66,7 +66,7 @@ export function VerifierExecutionBlock({
           <p className="font-bold text-primary-800 text-base">Statut : Honoré</p>
           {fulfillment.paidAt && (
             <p>
-              <span className="text-neutral-500">Date d'exécution :</span>{" "}
+              <span className="text-neutral-500">Date d&apos;exécution :</span>{" "}
               {formatDate(fulfillment.paidAt)}
             </p>
           )}
@@ -113,7 +113,7 @@ export function VerifierExecutionBlock({
           {fulfillment.fulfillmentHash && (
             <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-3 font-mono text-[10px] text-neutral-200 break-all">
               <span className="text-primary-400 block text-[9px] font-bold mb-1">
-                HASH D'EXÉCUTION
+                HASH D&apos;EXÉCUTION
               </span>
               {fulfillment.fulfillmentHash}
             </div>
@@ -124,7 +124,7 @@ export function VerifierExecutionBlock({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Télécharger l'attestation d'exécution (PDF)
+            Télécharger l&apos;attestation d&apos;exécution (PDF)
           </a>
         </div>
       ) : declared ? (
@@ -137,7 +137,7 @@ export function VerifierExecutionBlock({
             ? "Échéance dépassée — exécution en attente."
             : "En attente d'exécution (remboursement ou réalisation des termes)."}
           <span className="block mt-2 text-xs text-neutral-500">
-            Un accord signé ne signifie pas qu'il a été honoré.
+            Un accord signé ne signifie pas qu&apos;il a été honoré.
           </span>
         </p>
       ) : (
