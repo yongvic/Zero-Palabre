@@ -54,15 +54,15 @@ export default async function ValiderPage({
             <Badge variant={statutToBadgeVariant(accord.statut)} className="px-3.5 py-1 text-xs font-bold uppercase tracking-wider">
               {ACCORD_STATUT_LABELS[accord.statut]}
             </Badge>
-            <span className="text-xs font-mono text-neutral-400 glass-card-dark px-3 py-1 rounded-full border border-white/10">
+            <span className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 font-mono text-xs text-neutral-600">
               Réf : {accord.reference}
             </span>
           </div>
-          <h1 className="text-heading-xl text-neutral-50 font-extrabold tracking-tight md:text-3xl leading-tight">
+          <h1 className="text-heading-xl font-extrabold tracking-tight text-neutral-950 md:text-3xl leading-tight">
             {accord.titre}
           </h1>
-          <p className="mt-3 text-base text-neutral-400 max-w-xl leading-relaxed">
-            Proposition officielle de <strong className="text-neutral-200 font-semibold">{accord.initiateur.name}</strong>. Révisez les termes avant de vous engager.
+          <p className="mt-3 max-w-xl text-base leading-relaxed text-neutral-600">
+            Proposition officielle de <strong className="font-semibold text-neutral-900">{accord.initiateur.name}</strong>. Révisez les termes avant de vous engager.
           </p>
         </div>
 

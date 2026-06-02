@@ -15,16 +15,12 @@ const navLinks = [
   { href: "#faq", label: "FAQ" },
 ];
 
-interface SiteHeaderProps {
-  dark?: boolean;
-}
-
-export function SiteHeader({ dark = false }: SiteHeaderProps) {
+export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -32,99 +28,79 @@ export function SiteHeader({ dark = false }: SiteHeaderProps) {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
-        scrolled
-          ? dark
-            ? "glass-nav py-3"
-            : "glass-nav py-3"
-          : "border-transparent bg-transparent py-5"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        scrolled ? "glass-nav py-3" : "bg-transparent py-5"
       )}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10 lg:px-16">
+      <div className="page-container flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
           <Image
-            src={dark ? "/brand/logo-blanc.png" : "/brand/logo-vert.png"}
+            src="/brand/logo-vert.png"
             alt="Zéro-Palabre"
             width={120}
             height={32}
-            className="h-8 w-auto transition-transform group-hover:scale-105"
+            className="h-8 w-auto transition-transform group-hover:scale-[1.02]"
             priority
           />
         </Link>
 
-        <nav className="hidden items-center gap-10 lg:flex">
+        <nav className="hidden items-center gap-8 lg:flex" aria-label="Navigation principale">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={cn(
-                "text-[13px] font-bold uppercase tracking-widest transition-all hover:scale-105",
-                dark
-                  ? "text-neutral-400 hover:text-neutral-0"
-                  : "text-neutral-500 hover:text-primary-800"
-              )}
+              className="text-sm font-medium text-neutral-600 transition-colors hover:text-primary-800"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 lg:flex">
-          <Button variant="ghost" asChild className={cn("rounded-xl font-bold", dark ? "text-neutral-300 hover:text-neutral-0 hover:bg-white/5" : "text-neutral-600")}>
+        <div className="hidden items-center gap-3 lg:flex">
+          <Button variant="ghost" asChild className="rounded-xl">
             <Link href="/connexion">Connexion</Link>
           </Button>
-          <Button asChild className="rounded-xl font-bold px-6 shadow-lg shadow-primary-700/10">
-            <Link href="/inscription">
-              Démarrer gratuitement
-            </Link>
+          <Button asChild className="rounded-xl shadow-md">
+            <Link href="/inscription">Démarrer gratuitement</Link>
           </Button>
         </div>
 
         <button
           type="button"
-          className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-xl lg:hidden transition-colors",
-            dark ? "text-neutral-0 hover:bg-white/10" : "text-neutral-900 hover:bg-neutral-100"
-          )}
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-neutral-800 hover:bg-neutral-100 lg:hidden"
           onClick={() => setOpen(!open)}
-          aria-label={open ? "Fermer" : "Menu"}
+          aria-expanded={open}
+          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
         >
-          {open ? <X strokeWidth={2.5} /> : <Menu strokeWidth={2.5} />}
+          {open ? <X strokeWidth={2} /> : <Menu strokeWidth={2} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className={cn(
-              "overflow-hidden lg:hidden border-t",
-              dark ? "bg-neutral-950 border-neutral-800" : "bg-neutral-0 border-neutral-100 shadow-xl"
-            )}
+            className="overflow-hidden border-t border-neutral-200 bg-neutral-0 shadow-lg lg:hidden"
           >
-            <nav className="flex flex-col gap-2 p-6">
+            <nav className="page-container flex flex-col gap-1 py-4" aria-label="Menu mobile">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={cn(
-                    "flex items-center justify-between rounded-xl px-4 py-4 text-base font-bold transition-all active:scale-95",
-                    dark ? "text-neutral-200 active:bg-white/5" : "text-neutral-700 active:bg-neutral-50"
-                  )}
+                  className="flex min-h-[44px] items-center justify-between rounded-xl px-4 text-base font-medium text-neutral-800 active:bg-neutral-50"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}
-                  <ArrowRight className="h-4 w-4 opacity-30" />
+                  <ArrowRight className="h-4 w-4 text-neutral-300" />
                 </Link>
               ))}
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <Button variant="ghost" asChild className={cn("rounded-xl h-12 font-bold", dark ? "text-neutral-300 bg-white/5" : "bg-neutral-50")}>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <Button variant="secondary" asChild className="h-12 rounded-xl">
                   <Link href="/connexion">Connexion</Link>
                 </Button>
-                <Button asChild className="rounded-xl h-12 font-bold">
+                <Button asChild className="h-12 rounded-xl">
                   <Link href="/inscription">S&apos;inscrire</Link>
                 </Button>
               </div>
@@ -135,4 +111,3 @@ export function SiteHeader({ dark = false }: SiteHeaderProps) {
     </header>
   );
 }
-

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-/** Orbes lumineux d'arrière-plan — une seule instance par layout */
+/** Orbes d'ambiance — fond clair premium */
 export function AmbientBackground({ className }: { className?: string }) {
   return (
     <div
@@ -10,16 +10,16 @@ export function AmbientBackground({ className }: { className?: string }) {
       aria-hidden
     >
       <div
-        className="glow-ambient -left-[20%] top-[10%] h-[420px] w-[420px]"
-        style={{ background: "oklch(0.42 0.1 165 / 0.25)" }}
+        className="glow-ambient -left-[15%] top-[5%] h-[380px] w-[380px]"
+        style={{ background: "oklch(0.42 0.1 165 / 0.12)" }}
       />
       <div
-        className="glow-ambient right-[5%] top-[30%] h-[320px] w-[320px]"
-        style={{ background: "oklch(0.55 0.14 75 / 0.12)" }}
+        className="glow-ambient right-[0%] top-[25%] h-[280px] w-[280px]"
+        style={{ background: "oklch(0.75 0.15 75 / 0.08)" }}
       />
       <div
-        className="glow-ambient bottom-[5%] left-[30%] h-[380px] w-[380px]"
-        style={{ background: "oklch(0.25 0.04 250 / 0.2)" }}
+        className="glow-ambient bottom-[10%] left-[35%] h-[320px] w-[320px]"
+        style={{ background: "oklch(0.55 0.12 165 / 0.06)" }}
       />
     </div>
   );

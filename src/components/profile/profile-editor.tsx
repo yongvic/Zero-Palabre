@@ -170,7 +170,7 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
                 {initials}
               </span>
             )}
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral-950/50 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/40 opacity-0 transition-opacity group-hover:opacity-100">
               {uploadState === "uploading" ? (
                 <Loader2 className="h-5 w-5 animate-spin text-white" />
               ) : (

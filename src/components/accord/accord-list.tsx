@@ -4,8 +4,14 @@ import { motion } from "framer-motion";
 import { AccordCard } from "./accord-card";
 import type { Accord } from "@/types/database";
 
+/** Accord sérialisé pour les Client Components (Prisma Decimal → number). */
+export type AccordListItem = Omit<Accord, "montant"> & {
+  montant: number | null;
+  initiateur?: { name: string | null };
+};
+
 interface AccordListProps {
-  accords: (Accord & { initiateur?: { name: string | null } })[];
+  accords: AccordListItem[];
   userId: string;
 }
 

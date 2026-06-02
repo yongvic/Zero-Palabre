@@ -134,34 +134,34 @@ export default function ConnexionPage() {
       </div>
 
       {/* Right Section: Visual */}
-      <div className="relative hidden flex-1 lg:block bg-neutral-950 overflow-hidden">
-        <div className="absolute inset-0 african-pattern-mask opacity-[0.05] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full glow-primary opacity-20 pointer-events-none" />
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center space-y-8">
-           <motion.div
-             initial={{ opacity: 0, scale: 0.9 }}
-             animate={{ opacity: 1, scale: 1 }}
-             transition={{ delay: 0.3 }}
-             className="glass-panel p-10 rounded-[3rem] border-white/10 max-w-md w-full text-left space-y-6"
-           >
-              <div className="h-12 w-12 rounded-2xl bg-primary-500/20 flex items-center justify-center text-primary-400">
-                <Shield className="h-7 w-7" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold tracking-tight">Sécurité maximale.</h3>
-                <p className="text-neutral-400 leading-relaxed">
-                  Chaque accord est chiffré et horodaté. Votre confiance est notre priorité absolue.
-                </p>
-              </div>
-           </motion.div>
+      <div className="relative hidden flex-1 overflow-hidden bg-primary-50 lg:block">
+        <div className="absolute inset-0 african-pattern-mask opacity-[0.06] pointer-events-none" />
+        <div className="pointer-events-none absolute top-1/3 left-1/2 h-[360px] w-[360px] -translate-x-1/2 glow-primary opacity-60" />
 
-           <div className="space-y-4">
-             <Image src="/brand/logo-blanc.png" alt="Zéro-Palabre" width={140} height={32} className="mx-auto" />
-             <p className="text-sm font-bold tracking-widest uppercase text-neutral-600">
-               La preuve simple des accords du quotidien
-             </p>
-           </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-8 p-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="glass-card w-full max-w-md space-y-6 rounded-3xl p-10 text-left"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-100 text-primary-700">
+              <Shield className="h-7 w-7" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold tracking-tight text-neutral-950">Sécurité maximale</h3>
+              <p className="leading-relaxed text-neutral-600">
+                Chaque accord est horodaté et vérifiable. Votre confiance est notre priorité.
+              </p>
+            </div>
+          </motion.div>
+
+          <div className="space-y-3">
+            <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={140} height={32} className="mx-auto" />
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary-800">
+              La preuve simple des accords du quotidien
+            </p>
+          </div>
         </div>
       </div>
     </div>

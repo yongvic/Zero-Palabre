@@ -7,18 +7,18 @@ const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     interactive?: boolean;
-    variant?: "light" | "dark" | "paper";
+    variant?: "default" | "muted" | "paper";
   }
->(({ className, interactive, variant = "light", ...props }, ref) => (
+>(({ className, interactive, variant = "default", ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
       "rounded-2xl p-6 transition-[transform,box-shadow,border-color] duration-[220ms] ease-out",
-      variant === "light" && "glass-card text-neutral-900",
-      variant === "dark" && "glass-card-dark text-neutral-100",
+      variant === "default" && "glass-card text-neutral-900",
+      variant === "muted" && "bg-neutral-100/80 border border-neutral-200/80 text-neutral-900",
       variant === "paper" && "glass-paper text-neutral-900",
       interactive &&
-        "hover-lift cursor-pointer hover:border-primary-300/40 active:scale-[0.99]",
+        "group hover-lift cursor-pointer hover:border-primary-200/80 active:scale-[0.99]",
       className
     )}
     {...props}

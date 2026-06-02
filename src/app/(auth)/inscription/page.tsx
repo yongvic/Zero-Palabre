@@ -82,19 +82,19 @@ export default function InscriptionPage() {
   return (
     <div className="flex min-h-[100dvh] bg-neutral-0">
       {/* Left Section: Visual */}
-      <div className="relative hidden flex-1 lg:block bg-neutral-950 overflow-hidden">
-        <div className="absolute inset-0 african-pattern-mask opacity-[0.05] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full glow-primary opacity-20 pointer-events-none" />
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center space-y-12">
+      <div className="relative hidden flex-1 overflow-hidden bg-primary-50 lg:block">
+        <div className="absolute inset-0 african-pattern-mask opacity-[0.06] pointer-events-none" />
+        <div className="pointer-events-none absolute top-1/3 left-1/2 h-[360px] w-[360px] -translate-x-1/2 glow-primary opacity-60" />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-12 p-16 text-center">
            <div className="space-y-6">
-             <Image src="/brand/logo-blanc.png" alt="Zéro-Palabre" width={160} height={36} className="mx-auto" />
-             <h2 className="text-4xl font-black tracking-tighter text-neutral-0">
+             <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={160} height={36} className="mx-auto" />
+             <h2 className="text-4xl font-black tracking-tighter text-neutral-950">
                Rejoignez la confiance <br /> numérique.
              </h2>
            </div>
 
-           <div className="grid gap-6 text-left max-w-sm">
+           <div className="grid max-w-sm gap-6 text-left">
              {[
                "Créez des preuves inaltérables",
                "Construisez votre réputation",
@@ -105,9 +105,9 @@ export default function InscriptionPage() {
                  initial={{ opacity: 0, x: -20 }}
                  animate={{ opacity: 1, x: 0 }}
                  transition={{ delay: 0.4 + i * 0.1 }}
-                 className="flex items-center gap-4 text-neutral-300 font-medium"
+                 className="flex items-center gap-4 font-medium text-neutral-700"
                >
-                 <div className="h-6 w-6 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 shrink-0">
+                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                    <CheckCircle2 className="h-4 w-4" />
                  </div>
                  <span>{benefit}</span>

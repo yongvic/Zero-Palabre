@@ -199,9 +199,9 @@ export default async function VerifierPage({
                   <Lock className="h-4 w-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
                   <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Horodatage & Preuve Blockchain (SHA-256)</span>
                 </div>
-                <div className="relative rounded-xl border border-neutral-800 bg-neutral-950 p-4 font-mono text-[11px] tracking-tight text-neutral-200 shadow-lg overflow-x-auto select-all">
-                  <span className="block text-primary-400 mb-1 font-bold text-[9px] uppercase tracking-wider">{"// HASH D'INTÉGRITÉ DE L'ACCORD (INALTÉRABLE)"}</span>
-                  <span className="block break-all text-neutral-100 font-semibold">{accord.contentHash}</span>
+                <div className="relative select-all overflow-x-auto rounded-xl border border-neutral-200 bg-neutral-50 p-4 font-mono text-[11px] tracking-tight text-neutral-700 shadow-sm">
+                  <span className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-primary-700">Hash d&apos;intégrité (SHA-256)</span>
+                  <span className="block break-all font-semibold text-neutral-900">{accord.contentHash}</span>
                   <div className="absolute right-3 bottom-3 text-[9px] font-bold text-neutral-500 uppercase tracking-widest pointer-events-none">ZP SECURE</div>
                 </div>
               </div>

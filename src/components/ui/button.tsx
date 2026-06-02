@@ -8,23 +8,21 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded-xl text-[15px] font-semibold tracking-tight transition-[transform,box-shadow,background-color,border-color,color] duration-[220ms] ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:pointer-events-none disabled:opacity-45 min-h-[44px] px-6",
+  "inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded-xl text-[15px] font-semibold tracking-tight transition-[transform,box-shadow,background-color,border-color,color] duration-[220ms] ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-50 disabled:pointer-events-none disabled:opacity-45 min-h-[44px] px-6",
   {
     variants: {
       variant: {
         primary:
-          "bg-primary-600 text-white shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_4px_20px_-4px_oklch(0.42_0.1_165/0.5)] hover:bg-primary-500 hover:shadow-[0_1px_0_rgba(255,255,255,0.2)_inset,0_8px_28px_-6px_oklch(0.42_0.1_165/0.55)] border border-primary-500/30",
+          "bg-primary-700 text-white shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_4px_16px_-4px_oklch(0.35_0.08_165/0.45)] hover:bg-primary-600 border border-primary-600/20",
         secondary:
-          "glass-card text-primary-800 border-primary-200/60 hover:border-primary-300/80 hover:shadow-glass",
+          "bg-neutral-0 text-primary-800 border border-neutral-200 shadow-sm hover:border-primary-200 hover:bg-primary-50/50",
         ghost:
-          "bg-transparent text-neutral-300 hover:bg-white/8 hover:text-white border border-transparent",
+          "bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 border border-transparent",
         danger:
-          "bg-error-600 text-white hover:bg-red-600 shadow-sm border border-red-500/30",
+          "bg-error-600 text-white hover:bg-red-600 shadow-sm border border-red-500/20",
         outline:
-          "border border-white/15 bg-white/5 text-neutral-100 hover:bg-white/10 hover:border-white/25 backdrop-blur-md",
-        link: "text-primary-400 underline-offset-4 hover:text-primary-300 hover:underline min-h-0 px-0 h-auto",
-        glass:
-          "glass-card-dark text-neutral-100 border-white/12 hover:border-white/22 hover:shadow-glass-dark",
+          "border border-neutral-200 bg-neutral-0 text-neutral-800 hover:bg-neutral-50 hover:border-neutral-300",
+        link: "text-primary-700 underline-offset-4 hover:text-primary-800 hover:underline min-h-0 px-0 h-auto",
       },
       size: {
         default: "h-11 px-6",
@@ -72,7 +70,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
       return (
         <Slot
-          className={cn(buttonVariants({ variant, size, className }), "active:scale-[0.97]")}
+          className={cn(buttonVariants({ variant, size, className }), "active:scale-[0.98]")}
           ref={ref}
           {...filteredProps}
         >
@@ -83,7 +81,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 500, damping: 28 }}
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref as React.Ref<HTMLButtonElement>}

@@ -111,8 +111,8 @@ export function VerifierExecutionBlock({
           )}
           <TrustDots level={fulfillment.trustLevel} />
           {fulfillment.fulfillmentHash && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-3 font-mono text-[10px] text-neutral-200 break-all">
-              <span className="text-primary-400 block text-[9px] font-bold mb-1">
+            <div className="break-all rounded-lg border border-neutral-200 bg-neutral-50 p-3 font-mono text-[10px] text-neutral-700">
+              <span className="mb-1 block text-[9px] font-bold text-primary-700">
                 HASH D&apos;EXÉCUTION
               </span>
               {fulfillment.fulfillmentHash}

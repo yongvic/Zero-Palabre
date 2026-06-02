@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { cn, formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
-import type { Accord } from "@/types/database";
+import type { AccordListItem } from "./accord-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ACCORD_STATUT_LABELS, ACCORD_TYPE_LABELS } from "@/lib/constants";
@@ -12,7 +12,7 @@ export function AccordCard({
   accord,
   currentUserId,
 }: {
-  accord: Accord & { initiateur?: { name: string | null } };
+  accord: AccordListItem;
   currentUserId?: string;
 }) {
   const isInitiator = !currentUserId || accord.initiateurId === currentUserId;
@@ -22,7 +22,7 @@ export function AccordCard({
 
   return (
     <Link href={`/accords/${accord.id}`} className="group block">
-      <Card interactive variant="light" className="overflow-hidden p-0">
+      <Card interactive className="overflow-hidden p-0">
         <div className="space-y-4 p-5">
           <div className="flex items-center justify-between">
             <Badge variant={statutToBadgeVariant(accord.statut)}>

@@ -24,29 +24,29 @@ export function PublicPageShell({
             {showBack && (
               <Link
                 href="/"
-                className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-300 transition-colors hover:bg-white/10 hover:text-white"
-                aria-label="Retour"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+                aria-label="Retour à l'accueil"
               >
                 <ChevronLeft className="h-5 w-5" strokeWidth={2} />
               </Link>
             )}
             <Image
-              src="/brand/logo-blanc.png"
+              src="/brand/logo-vert.png"
               alt="Zéro-Palabre"
-              width={100}
-              height={24}
+              width={110}
+              height={28}
               priority
               className="h-[22px] w-auto"
             />
           </div>
-          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-primary-300 backdrop-blur-md">
+          <div className="flex items-center gap-1.5 rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-800">
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
             {badge}
           </div>
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-3xl px-4 pt-10 md:px-6">{children}</main>
+      <main className="relative mx-auto max-w-3xl px-4 pt-8 md:px-6 md:pt-10">{children}</main>
     </div>
   );
 }
