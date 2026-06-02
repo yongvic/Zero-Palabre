@@ -51,9 +51,11 @@ export default async function VerifierPage({
   });
 
   return (
-    <div className="min-h-screen bg-neutral-50/50 pb-20">
-      {/* Header premium et sécurisé */}
-      <header className="sticky top-0 z-40 border-b border-neutral-150 bg-neutral-0/80 px-6 py-3.5 backdrop-blur-md">
+    <div className="relative min-h-[100dvh] pb-20">
+      <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden>
+        <div className="glow-ambient -left-[15%] top-0 h-[400px] w-[400px] opacity-60" style={{ background: "oklch(0.42 0.1 165 / 0.2)" }} />
+      </div>
+      <header className="glass-nav sticky top-0 z-40 px-6 py-3.5">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
@@ -65,7 +67,7 @@ export default async function VerifierPage({
             </Link>
             <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={90} height={22} priority className="h-[22px] w-auto" />
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-800 border border-primary-100">
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-primary-300">
             <ShieldCheck className="h-3.5 w-3.5 animate-pulse text-primary-700" strokeWidth={2.5} />
             Registre Public de Preuve
           </div>
@@ -88,7 +90,7 @@ export default async function VerifierPage({
         </div>
 
         {/* Le Certificat Officiel */}
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-150 bg-paper shadow-paper p-8 md:p-12 mb-8">
+        <div className="relative mb-8 overflow-hidden rounded-2xl glass-paper p-8 md:p-12">
           {/* Filigrane de Sceau Officiel de l&apos;accord */}
           <div className="watermark-seal" />
 

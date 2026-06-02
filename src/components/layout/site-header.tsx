@@ -34,9 +34,9 @@ export function SiteHeader({ dark = false }: SiteHeaderProps) {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
         scrolled
-          ? dark 
-            ? "border-neutral-800/50 bg-neutral-950/80 backdrop-blur-xl py-3" 
-            : "border-neutral-200/50 bg-neutral-0/80 backdrop-blur-xl py-3 shadow-premium"
+          ? dark
+            ? "glass-nav py-3"
+            : "glass-nav py-3"
           : "border-transparent bg-transparent py-5"
       )}
     >

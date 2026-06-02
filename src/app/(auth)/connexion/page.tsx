@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Eye, EyeOff, LogIn, ChevronLeft } from "lucide-react";
+import { Eye, EyeOff, LogIn, ChevronLeft, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,14 +39,13 @@ export default function ConnexionPage() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] bg-neutral-0">
-      {/* Left Section: Form */}
+    <div className="relative flex min-h-[100dvh]">
       <div className="flex flex-1 flex-col justify-center px-6 py-12 sm:px-12 lg:flex-none lg:w-[500px] xl:w-[600px]">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="mx-auto w-full max-w-sm space-y-10"
+          className="mx-auto w-full max-w-sm space-y-10 glass-card rounded-3xl p-8 md:p-10"
         >
           <div className="space-y-6">
             <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-neutral-400 hover:text-primary-700 transition-colors group">
@@ -168,6 +167,4 @@ export default function ConnexionPage() {
     </div>
   );
 }
-
-import { Shield } from "lucide-react";
 

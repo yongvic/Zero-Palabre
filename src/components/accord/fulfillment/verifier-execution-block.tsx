@@ -52,7 +52,7 @@ export function VerifierExecutionBlock({
   const declared = fulfillment?.status === "DECLARED";
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-0 p-6 md:p-8 mb-8 shadow-sm">
+    <div className="glass-card relative mb-8 overflow-hidden rounded-2xl p-6 md:p-8">
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-primary-600" />
       <div className="flex items-center gap-2 pb-3 border-b border-neutral-100 mb-5">
         <Sparkles className="h-4 w-4 text-amber-600" />

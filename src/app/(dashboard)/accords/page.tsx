@@ -29,16 +29,16 @@ export default async function AccordsPage() {
     <div className="space-y-10">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1.5">
-          <h1 className="text-3xl font-extrabold tracking-tighter text-neutral-950 sm:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tighter text-neutral-50 sm:text-4xl">
             Mes accords
           </h1>
-          <p className="text-base text-neutral-500">
+          <p className="text-base text-neutral-400">
             Gérez vos engagements et suivez vos preuves numériques.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden flex-col items-end px-4 text-right sm:flex">
-            <span className="text-2xl font-bold tracking-tight text-primary-700">
+            <span className="text-2xl font-bold tracking-tight text-primary-400">
               {accords.length}
             </span>
             <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">

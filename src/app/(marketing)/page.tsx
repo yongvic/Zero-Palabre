@@ -179,13 +179,13 @@ export default function HomePage() {
         </section>
 
         {/* Value Prop — Bento Inspired */}
-        <section className="py-32 bg-neutral-0">
+        <section className="py-32 relative">
           <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-16">
             <div className="space-y-4 max-w-3xl mb-16">
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-balance leading-[1.1]">
-                Pourquoi choisir <span className="text-primary-700">Zéro-Palabre</span> ?
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-balance leading-[1.1] text-neutral-50">
+                Pourquoi choisir <span className="text-primary-400">Zéro-Palabre</span> ?
               </h2>
-              <p className="text-lg text-neutral-500 font-medium">
+              <p className="text-lg text-neutral-400 font-medium">
                 Parce que la confiance ne suffit pas toujours, nous créons la preuve qui protège vos relations.
               </p>
             </div>
@@ -199,7 +199,7 @@ export default function HomePage() {
             >
               {features.map((f) => (
                 <motion.div key={f.title} variants={itemVariants}>
-                  <Card className="h-full border-neutral-200/50 hover:shadow-premium transition-all p-8 space-y-6">
+                  <Card variant="light" interactive className="h-full p-8 space-y-6">
                     <div className="h-14 w-14 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-700">
                       <f.icon className="h-7 w-7" strokeWidth={2} />
                     </div>
@@ -215,16 +215,16 @@ export default function HomePage() {
         </section>
 
         {/* The Process — Visual Cascade */}
-        <section id="comment-ca-marche" className="py-32 bg-neutral-50 relative overflow-hidden">
+        <section id="comment-ca-marche" className="py-32 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-300/30 to-transparent" />
           
           <div className="mx-auto max-w-7xl px-6 md:px-10 lg:px-16">
             <div className="flex flex-col lg:flex-row gap-16 items-start">
               <div className="lg:sticky lg:top-32 max-w-md space-y-6">
-                 <h2 className="text-4xl font-black tracking-tight leading-none">
-                  Un processus <span className="text-primary-700">fluide</span>.
+                 <h2 className="text-4xl font-black tracking-tight leading-none text-neutral-50">
+                  Un processus <span className="text-primary-400">fluide</span>.
                  </h2>
-                 <p className="text-lg text-neutral-500 font-medium">
+                 <p className="text-lg text-neutral-400 font-medium">
                   En quatre étapes simples, sécurisez n&apos;importe quel échange du quotidien.
                  </p>
                  <div className="pt-4">
@@ -242,7 +242,7 @@ export default function HomePage() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: idx * 0.1 }}
-                    className="flex gap-6 p-8 rounded-[2rem] bg-neutral-0 border border-neutral-200/60 shadow-sm hover:shadow-md transition-all group"
+                    className="glass-card flex gap-6 p-8 rounded-[2rem] hover-lift group"
                   >
                     <div className="h-12 w-12 shrink-0 rounded-2xl bg-neutral-100 flex items-center justify-center text-xl font-black text-neutral-300 group-hover:bg-primary-700 group-hover:text-neutral-0 transition-colors">
                       {step.n}

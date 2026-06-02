@@ -68,6 +68,13 @@ const config: Config = {
         lg: "var(--shadow-lg)",
         xl: "var(--shadow-xl)",
         premium: "var(--shadow-premium)",
+        glass: "var(--shadow-glass)",
+        "glass-dark": "var(--shadow-glass-dark)",
+      },
+      transitionTimingFunction: {
+        out: "var(--ease-out)",
+        "in-out": "var(--ease-in-out)",
+        drawer: "var(--ease-drawer)",
       },
       maxWidth: {
         container: "1280px",

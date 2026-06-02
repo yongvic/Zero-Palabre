@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { PublicPageShell } from "@/components/layout/public-page-shell";
 import { PartyAccordWizard } from "@/components/accord/party-flow/party-accord-wizard";
 import { ACCORD_TYPE_LABELS } from "@/lib/constants";
 import { formatDate, formatMontant, statutToBadgeVariant } from "@/lib/utils";
@@ -48,41 +48,25 @@ export default async function ValiderPage({
   const readonly = ["ACCEPTED", "REJECTED", "EXPIRED"].includes(accord.statut);
 
   return (
-    <div className="min-h-screen bg-neutral-50/50 pb-20">
-      {/* Header minimaliste et haut de gamme */}
-      <header className="sticky top-0 z-40 border-b border-neutral-150 bg-neutral-0/80 px-6 py-4 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image src="/brand/logo-vert.png" alt="Zéro-Palabre" width={90} height={22} priority className="h-[22px] w-auto" />
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-800">
-            <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
-            Preuve Sécurisée
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-3xl px-4 pt-12 md:px-6">
-        {/* En-tête de page aéré */}
+    <PublicPageShell badge="Validation d'accord">
         <div className="mb-10 text-center md:text-left">
           <div className="mb-4 flex flex-col items-center gap-3 md:flex-row md:justify-between">
             <Badge variant={statutToBadgeVariant(accord.statut)} className="px-3.5 py-1 text-xs font-bold uppercase tracking-wider">
               {ACCORD_STATUT_LABELS[accord.statut]}
             </Badge>
-            <span className="text-xs font-mono text-neutral-500 bg-neutral-100 px-3 py-1 rounded-full border border-neutral-150">
+            <span className="text-xs font-mono text-neutral-400 glass-card-dark px-3 py-1 rounded-full border border-white/10">
               Réf : {accord.reference}
             </span>
           </div>
-          <h1 className="text-heading-xl text-neutral-950 font-extrabold tracking-tight md:text-3xl leading-tight">
+          <h1 className="text-heading-xl text-neutral-50 font-extrabold tracking-tight md:text-3xl leading-tight">
             {accord.titre}
           </h1>
-          <p className="mt-3 text-base text-neutral-600 max-w-xl leading-relaxed">
-            Vous avez reçu une proposition d&apos;accord officiel de la part de <strong className="text-neutral-900 font-semibold">{accord.initiateur.name}</strong>. Veuillez réviser les termes ci-dessous avant de vous engager.
+          <p className="mt-3 text-base text-neutral-400 max-w-xl leading-relaxed">
+            Proposition officielle de <strong className="text-neutral-200 font-semibold">{accord.initiateur.name}</strong>. Révisez les termes avant de vous engager.
           </p>
         </div>
 
-        {/* Le Document Scellé Officiel */}
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-150 bg-paper shadow-paper p-8 md:p-12 mb-8">
+        <div className="relative overflow-hidden rounded-2xl glass-paper p-8 md:p-12 mb-8">
           {/* Filigrane de Sceau Officiel de l&apos;accord */}
           <div className="watermark-seal" />
 
@@ -154,7 +138,7 @@ export default async function ValiderPage({
         </div>
 
         {/* Formulaire d&apos;action de validation ou notification */}
-        <div className="rounded-2xl border border-neutral-150 bg-neutral-0 p-6 md:p-8 shadow-xs">
+        <div className="glass-card rounded-2xl p-6 md:p-8">
           {!readonly ? (
             <>
               <h3 className="text-base font-bold text-neutral-900 mb-2">
@@ -195,7 +179,6 @@ export default async function ValiderPage({
             </div>
           )}
         </div>
-      </main>
-    </div>
+    </PublicPageShell>
   );
 }

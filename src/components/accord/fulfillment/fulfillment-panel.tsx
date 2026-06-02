@@ -65,10 +65,8 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
   const declared = data.fulfillment?.status === "DECLARED";
 
   const bannerClass = cn(
-    "rounded-2xl border p-5 md:p-6 space-y-4",
-    isHonored && "border-primary-200 bg-primary-50/40",
-    isOverdue && !isHonored && "border-amber-200 bg-amber-50/50",
-    !isOverdue && !isHonored && "border-primary-100 bg-primary-50/30"
+    "glass-card rounded-2xl p-5 md:p-6 space-y-4",
+    isOverdue && !isHonored && "ring-1 ring-amber-500/30"
   );
 
   let statusLine = "En cours — suivi d'exécution";
@@ -89,7 +87,7 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
           <Clock className="h-6 w-6 text-primary-800 shrink-0" />
         )}
         <div>
-          <h3 className="text-sm font-bold text-neutral-900">Exécution de l&apos;accord</h3>
+          <h3 className="text-sm font-bold text-neutral-950">Exécution de l&apos;accord</h3>
           <p className="text-xs text-neutral-600 mt-0.5">{statusLine}</p>
           <p className="text-[11px] text-neutral-500 mt-2">
             La signature ne vaut pas remboursement — cette section suit l&apos;exécution réelle.
