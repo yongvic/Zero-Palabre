@@ -69,6 +69,7 @@ export async function GET(
               : null,
             reference: fulfillment.reference,
             hasProof: Boolean(fulfillment.proofData),
+            proofUrl: fulfillment.proofData,
             declaredName: fulfillment.declaredName,
             declaredEmail: fulfillment.declaredEmail,
             declaredAt: fulfillment.declaredAt?.toISOString() ?? null,

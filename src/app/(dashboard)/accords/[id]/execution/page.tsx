@@ -39,6 +39,7 @@ export default async function AccordExecutionPage({
           paymentMethod={f.paymentMethod}
           referenceTx={f.reference}
           hasProof={Boolean(f.proofData)}
+          proofUrl={f.proofData}
         />
       </div>
     </div>

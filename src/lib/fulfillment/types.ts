@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 export const paymentMethodSchema = z.enum([
   "TMONEY",
@@ -13,7 +13,7 @@ export const declareFulfillmentSchema = z.object({
   paidAt: z.string().min(1),
   paymentMethod: paymentMethodSchema,
   reference: z.string().max(120).optional(),
-  proofData: z.string().max(500_000).optional(),
+  proofUrl: z.string().url().max(2048).optional(),
   declaredName: z.string().min(2).max(80),
   declaredEmail: z.string().email(),
 });

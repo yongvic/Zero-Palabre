@@ -20,6 +20,7 @@ type Props = {
   paymentMethod: string;
   referenceTx: string | null;
   hasProof: boolean;
+  proofUrl?: string | null;
 };
 
 export function ConfirmFulfillmentClient(props: Props) {
@@ -48,7 +49,7 @@ export function ConfirmFulfillmentClient(props: Props) {
 
   async function reject() {
     if (reason.trim().length < 5) {
-      setError("Motif requis (5 caractères minimum).");
+      setError("Motif requis (5 caracteres minimum).");
       return;
     }
     setLoading(true);
@@ -72,13 +73,13 @@ export function ConfirmFulfillmentClient(props: Props) {
     return (
       <div className="text-center py-10 space-y-4">
         <CheckCircle className="h-16 w-16 text-primary-700 mx-auto animate-pulse" />
-        <h2 className="text-xl font-bold text-neutral-900">Accord honoré</h2>
+        <h2 className="text-xl font-bold text-neutral-900">Accord honore</h2>
         <p className="text-sm text-neutral-600">
-          Merci d&apos;avoir confirmé. L&apos;attestation d&apos;exécution est disponible.
+          Merci d'avoir confirme. L'attestation d'execution est disponible.
         </p>
         <Button asChild>
           <a href={`/api/accords/${props.accordId}/pdf/fulfillment`} target="_blank" rel="noopener">
-            Télécharger l&apos;attestation
+            Telecharger l'attestation
           </a>
         </Button>
       </div>
@@ -88,9 +89,9 @@ export function ConfirmFulfillmentClient(props: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-neutral-900">Confirmer la réception</h1>
+        <h1 className="text-xl font-bold text-neutral-900">Confirmer la reception</h1>
         <p className="text-sm text-neutral-600 mt-1">
-          {props.declaredName} déclare un remboursement pour {props.titre}
+          {props.declaredName} declare un remboursement pour {props.titre}
         </p>
       </div>
 
@@ -100,7 +101,7 @@ export function ConfirmFulfillmentClient(props: Props) {
           <span className="font-bold">{formatMontant(props.montant, props.devise)}</span>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-neutral-500">Montant déclaré</span>
+          <span className="text-neutral-500">Montant declare</span>
           <span
             className={
               Math.abs(props.amountDeclared - props.montant) < 0.01
@@ -123,7 +124,17 @@ export function ConfirmFulfillmentClient(props: Props) {
           </span>
         </div>
         {props.hasProof && (
-          <p className="text-xs text-primary-700 font-medium">Justificatif fourni par le débiteur</p>
+          <div className="space-y-2">
+            <p className="text-xs text-primary-700 font-medium">Justificatif fourni par le debiteur</p>
+            {props.proofUrl && (
+              <a href={props.proofUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary-800 underline">
+                Ouvrir le justificatif
+              </a>
+            )}
+            {props.proofUrl && (
+              <img src={props.proofUrl} alt="Justificatif" className="max-h-44 rounded-lg border border-neutral-200 object-cover" />
+            )}
+          </div>
         )}
       </div>
 
@@ -140,7 +151,7 @@ export function ConfirmFulfillmentClient(props: Props) {
             className="min-h-[80px] w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Paiement non reçu ou montant incorrect…"
+            placeholder="Paiement non recu ou montant incorrect..."
           />
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => setRejectMode(false)}>
@@ -155,7 +166,7 @@ export function ConfirmFulfillmentClient(props: Props) {
         <div className="grid gap-3 sm:grid-cols-2">
           <Button className="min-h-[52px] gap-2" loading={loading} onClick={confirm}>
             <CheckCircle className="h-5 w-5" />
-            Confirmer la réception
+            Confirmer la reception
           </Button>
           <Button
             variant="secondary"

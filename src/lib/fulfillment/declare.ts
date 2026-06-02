@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { accordDeclaredEmail } from "@/lib/email-templates";
 import { sendTransactionalEmail } from "@/lib/resend";
 import type { DeclareFulfillmentInput } from "./types";
@@ -41,7 +41,7 @@ export async function declareFulfillment(
       paidAt,
       paymentMethod: input.paymentMethod,
       reference: input.reference ?? null,
-      proofData: input.proofData ?? null,
+      proofData: input.proofUrl ?? null,
       declaredName: input.declaredName.trim(),
       declaredEmail: input.declaredEmail.trim().toLowerCase(),
       declaredAt: new Date(),
@@ -56,6 +56,7 @@ export async function declareFulfillment(
         amount: input.amountDeclared,
         paymentMethod: input.paymentMethod,
         paidAt: paidAt.toISOString(),
+        hasProof: Boolean(input.proofUrl),
       },
     },
   });

@@ -25,6 +25,7 @@ const METHODS = Object.keys(PAYMENT_METHOD_LABELS) as Array<keyof typeof PAYMENT
 export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingProof, setUploadingProof] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [accord, setAccord] = useState<AccordInfo | null>(null);
@@ -32,7 +33,8 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
   const [paidAt, setPaidAt] = useState(() => new Date().toISOString().slice(0, 10));
   const [paymentMethod, setPaymentMethod] = useState<string>("TMONEY");
   const [reference, setReference] = useState("");
-  const [proofData, setProofData] = useState<string | null>(null);
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [proofName, setProofName] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
@@ -55,15 +57,29 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
     void load();
   }, [load]);
 
-  function handleProofFile(file: File | null) {
+  async function handleProofFile(file: File | null) {
     if (!file) return;
-    if (file.size > 800_000) {
-      setError("Image trop volumineuse (max ~800 Ko).");
-      return;
+    setUploadingProof(true);
+    setError("");
+
+    try {
+      const form = new FormData();
+      form.append("file", file);
+
+      const res = await fetch(`/api/fulfillment/${fulfillToken}/proof-upload`, {
+        method: "POST",
+        body: form,
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message ?? "Upload impossible");
+
+      setProofUrl(json.data.proofUrl as string);
+      setProofName(file.name);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload impossible");
+    } finally {
+      setUploadingProof(false);
     }
-    const reader = new FileReader();
-    reader.onload = () => setProofData(String(reader.result));
-    reader.readAsDataURL(file);
   }
 
   async function submit() {
@@ -79,7 +95,7 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
           paidAt,
           paymentMethod,
           reference: reference.trim() || undefined,
-          proofData: proofData ?? undefined,
+          proofUrl: proofUrl ?? undefined,
           declaredName: name.trim(),
           declaredEmail: email.trim(),
         }),
@@ -98,7 +114,7 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
     return (
       <div className="flex flex-col items-center py-16 gap-3">
         <Loader2 className="h-10 w-10 animate-spin text-primary-700" />
-        <p className="text-sm text-neutral-600">Chargement…</p>
+        <p className="text-sm text-neutral-600">Chargement...</p>
       </div>
     );
   }
@@ -122,7 +138,7 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
       >
         <CheckCircle className="h-16 w-16 text-primary-700 mx-auto" />
         <div>
-          <h2 className="text-xl font-bold text-neutral-900">Déclaration enregistrée</h2>
+          <h2 className="text-xl font-bold text-neutral-900">Declaration enregistree</h2>
           <p className="mt-2 text-sm text-neutral-600 max-w-md mx-auto">
             Accord {accord.reference} — en attente de confirmation de {accord.creditorName}.
           </p>
@@ -138,11 +154,11 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
     <div className="space-y-6">
       <div className="text-center md:text-left">
         <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
-          Déclaration de remboursement
+          Declaration de remboursement
         </p>
         <h1 className="text-xl font-bold text-neutral-900 mt-1">{accord.titre}</h1>
         <p className="text-sm text-neutral-600 mt-1">
-          Créancier : {accord.creditorName} · {accord.montantLabel}
+          Creancier : {accord.creditorName} · {accord.montantLabel}
         </p>
       </div>
 
@@ -168,7 +184,7 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
         {step === 1 && (
           <motion.div key="s1" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <div className="space-y-2">
-              <Label>Montant remboursé</Label>
+              <Label>Montant rembourse</Label>
               <Input value={accord.montantLabel} readOnly className="bg-neutral-50 font-semibold" />
             </div>
             <div className="space-y-2">
@@ -225,7 +241,7 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
         {step === 3 && (
           <motion.div key="s3" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <div className="space-y-2">
-              <Label>Référence transaction (optionnel)</Label>
+              <Label>Reference transaction (optionnel)</Label>
               <Input
                 placeholder="Ex: 235AF89"
                 value={reference}
@@ -236,16 +252,28 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
               <Label>Justificatif (optionnel)</Label>
               <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-neutral-200 bg-neutral-50 py-8 hover:border-primary-300">
                 <Camera className="h-5 w-5 text-neutral-500" />
-                <span className="text-sm font-medium text-neutral-600">Photo du reçu</span>
+                <span className="text-sm font-medium text-neutral-600">Photo du recu</span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   className="hidden"
-                  onChange={(e) => handleProofFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+                    void handleProofFile(e.target.files?.[0] ?? null);
+                  }}
                 />
               </label>
-              {proofData && (
-                <p className="text-xs text-primary-700 font-medium">Justificatif ajouté ✓</p>
+              {uploadingProof && (
+                <p className="text-xs text-neutral-600 font-medium">Upload du justificatif...</p>
+              )}
+              {proofUrl && (
+                <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-3">
+                  <p className="text-xs text-primary-800 font-semibold">Justificatif ajoute : {proofName ?? "image"}</p>
+                  <img
+                    src={proofUrl}
+                    alt="Apercu justificatif"
+                    className="mt-2 max-h-36 rounded-lg border border-neutral-200 object-cover"
+                  />
+                </div>
               )}
             </div>
             <div className="flex gap-2">
@@ -273,17 +301,21 @@ export function ExecuterWizard({ fulfillToken }: { fulfillToken: string }) {
                 <span className="text-neutral-500">Mode :</span>{" "}
                 {PAYMENT_METHOD_LABELS[paymentMethod]}
               </p>
+              <p>
+                <span className="text-neutral-500">Justificatif :</span>{" "}
+                {proofUrl ? "Ajoute" : "Aucun"}
+              </p>
             </div>
             <p className="text-xs text-neutral-500 leading-relaxed">
-              En validant, vous certifiez sur l&apos;honneur que ces informations sont exactes.
-              Le créancier devra confirmer la réception.
+              En validant, vous certifiez sur l'honneur que ces informations sont exactes.
+              Le creancier devra confirmer la reception.
             </p>
             <div className="flex gap-2">
               <Button variant="ghost" onClick={() => setStep(3)}>
                 <ArrowLeft className="h-4 w-4" /> Retour
               </Button>
-              <Button className="flex-1" loading={saving} onClick={submit}>
-                Envoyer la déclaration
+              <Button className="flex-1" loading={saving} onClick={submit} disabled={uploadingProof}>
+                Envoyer la declaration
               </Button>
             </div>
           </motion.div>
