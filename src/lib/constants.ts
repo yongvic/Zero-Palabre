@@ -1,5 +1,6 @@
 export const FREE_ACCORD_LIMIT = 3;
 export const INVITE_EXPIRY_HOURS = 5;
+export const SIGNATURE_EXPIRY_HOURS = 24;
 export const MAGIC_LINK_EXPIRY_MINUTES = 15;
 
 export const PLAN_LIMITS: Record<string, number> = {
@@ -33,6 +34,19 @@ export const ACCORD_STATUT_LABELS: Record<string, string> = {
   OVERDUE: "En retard",
   HONORED: "Honoré",
   DISPUTED: "Litige",
+  AWAITING_INITIATOR_SIGN: "À signer (vous)",
+  AWAITING_COUNTERPARTY_SIGN: "En attente contrepartie",
+  DUAL_SIGNED: "Double signature",
+  CANCELLED_TIMEOUT: "Annulé (délai)",
+  ESCROW_FUNDED: "Fonds transférés",
+  ACTIVE: "Actif",
+  REPAYING: "Remboursement en cours",
+  CLOSED: "Clôturé",
+};
+
+export const REPAYMENT_MODE_LABELS: Record<string, string> = {
+  MUTUAL_CONFIRM: "Déclaration + confirmation",
+  SCHEDULED_DEBIT: "Prélèvement à l'échéance",
 };
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
