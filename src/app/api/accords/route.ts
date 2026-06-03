@@ -8,6 +8,7 @@ import { INVITE_EXPIRY_HOURS } from "@/lib/constants";
 import { getAccordQuota, quotaExceededMessage } from "@/lib/accord-quota";
 import { accordInviteEmail } from "@/lib/email-templates";
 import { sendTransactionalEmail } from "@/lib/resend";
+import { normalizeUsername } from "@/lib/username";
 
 export async function GET() {
   const session = await auth();
@@ -60,12 +61,61 @@ export async function POST(req: Request) {
     const plan = quota.plan;
 
     const reference = await generateAccordReference();
-    const inviteExpiresAt = addHours(new Date(), INVITE_EXPIRY_HOURS);
+    const useNotarialFlow = !!input.counterpartyUsername?.trim();
 
-    const existingDest = await prisma.user.findUnique({
-      where: { email: input.destinataireEmail },
-      select: { id: true },
-    });
+    let destinataireUser: { id: string; email: string; name: string | null } | null = null;
+
+    if (useNotarialFlow) {
+      const username = normalizeUsername(input.counterpartyUsername!);
+      destinataireUser = await prisma.user.findUnique({
+        where: { username },
+        select: { id: true, email: true, name: true },
+      });
+      if (!destinataireUser) {
+        return NextResponse.json(
+          { error: { message: "Contrepartie @id introuvable" } },
+          { status: 404 }
+        );
+      }
+      if (destinataireUser.id === session.user.id) {
+        return NextResponse.json(
+          { error: { message: "Vous ne pouvez pas créer un accord avec vous-même" } },
+          { status: 400 }
+        );
+      }
+      if (input.type === "PRET" && !input.montant) {
+        return NextResponse.json(
+          { error: { message: "Montant requis pour un prêt notarial" } },
+          { status: 400 }
+        );
+      }
+      if (input.type === "PRET" && !input.repaymentMode) {
+        return NextResponse.json(
+          { error: { message: "Mode de remboursement requis" } },
+          { status: 400 }
+        );
+      }
+      if (
+        !user.username ||
+        !user.dateOfBirth ||
+        !user.address ||
+        !user.name
+      ) {
+        return NextResponse.json(
+          { error: { message: "Complétez votre profil (@id, adresse, date de naissance) avant de créer un accord notarial." } },
+          { status: 400 }
+        );
+      }
+    }
+
+    const inviteExpiresAt = useNotarialFlow ? null : addHours(new Date(), INVITE_EXPIRY_HOURS);
+
+    const existingDest = useNotarialFlow
+      ? destinataireUser
+      : await prisma.user.findUnique({
+          where: { email: input.destinataireEmail },
+          select: { id: true, email: true, name: true },
+        });
 
     const accord = await prisma.accord.create({
       data: {
@@ -78,21 +128,31 @@ export async function POST(req: Request) {
         dateEcheance: input.dateEcheance
           ? new Date(input.dateEcheance)
           : null,
-        destinataireNom: input.destinataireNom,
-        destinataireEmail: input.destinataireEmail,
+        destinataireNom: useNotarialFlow
+          ? (destinataireUser!.name ?? input.destinataireNom ?? "Contrepartie")
+          : input.destinataireNom!,
+        destinataireEmail: useNotarialFlow
+          ? destinataireUser!.email
+          : input.destinataireEmail!,
         destinataireId: existingDest?.id ?? null,
+        counterpartyUsername: useNotarialFlow
+          ? normalizeUsername(input.counterpartyUsername!)
+          : null,
+        repaymentMode: input.repaymentMode ?? null,
         initiateurId: session.user.id,
-        statut: "SENT",
-        sentAt: new Date(),
+        statut: useNotarialFlow ? "AWAITING_INITIATOR_SIGN" : "SENT",
+        sentAt: useNotarialFlow ? null : new Date(),
         inviteExpiresAt,
       },
     });
 
     await prisma.accordEvent.createMany({
-      data: [
-        { accordId: accord.id, type: "CREATED" },
-        { accordId: accord.id, type: "SENT" },
-      ],
+      data: useNotarialFlow
+        ? [{ accordId: accord.id, type: "CREATED" }]
+        : [
+            { accordId: accord.id, type: "CREATED" },
+            { accordId: accord.id, type: "SENT" },
+          ],
     });
 
     if (plan === "FREE") {
@@ -102,20 +162,25 @@ export async function POST(req: Request) {
       });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-    const validationUrl = `${baseUrl}/valider/${accord.publicToken}`;
+    if (!useNotarialFlow) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const validationUrl = `${baseUrl}/valider/${accord.publicToken}`;
 
-    await sendTransactionalEmail({
-      to: input.destinataireEmail,
-      subject: `[Zéro-Palabre] Accord à valider : ${input.titre}`,
-      html: accordInviteEmail({
-        initiateurName: user.name ?? "Un utilisateur",
-        titre: input.titre,
-        validationUrl,
-      }),
+      await sendTransactionalEmail({
+        to: input.destinataireEmail!,
+        subject: `[Zéro-Palabre] Accord à valider : ${input.titre}`,
+        html: accordInviteEmail({
+          initiateurName: user.name ?? "Un utilisateur",
+          titre: input.titre,
+          validationUrl,
+        }),
+      });
+    }
+
+    return NextResponse.json({
+      data: accord,
+      notarialFlow: useNotarialFlow,
     });
-
-    return NextResponse.json({ data: accord });
   } catch (e) {
     console.error(e);
     return NextResponse.json(

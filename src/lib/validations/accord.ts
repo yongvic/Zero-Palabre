@@ -17,8 +17,9 @@ export const createAccordSchema = z.object({
   destinataireNom: z
     .string()
     .min(2, "Nom du destinataire requis")
-    .max(80),
-  destinataireEmail: z.string().email("Email invalide"),
+    .max(80)
+    .optional(),
+  destinataireEmail: z.string().email("Email invalide").optional(),
   montant: z.coerce.number().positive().max(99999999).optional().nullable(),
   devise: z.enum(["FCFA", "EUR", "USD"]).default("FCFA"),
   dateEcheance: z.string().optional().nullable(),
@@ -26,6 +27,20 @@ export const createAccordSchema = z.object({
     .string()
     .min(20, "Décrivez l'accord en au moins 20 caractères")
     .max(2000),
+  counterpartyUsername: z.string().min(3).max(31).optional(),
+  repaymentMode: z.enum(["MUTUAL_CONFIRM", "SCHEDULED_DEBIT"]).optional(),
+}).superRefine((data, ctx) => {
+  if (data.counterpartyUsername) return;
+  if (!data.destinataireNom) {
+    ctx.addIssue({ code: "custom", message: "Nom du partenaire requis", path: ["destinataireNom"] });
+  }
+  if (!data.destinataireEmail) {
+    ctx.addIssue({ code: "custom", message: "Email requis", path: ["destinataireEmail"] });
+  }
+});
+
+export const signAccordSchema = z.object({
+  signedName: z.string().min(3, "Nom complet requis").max(120),
 });
 
 export const validateAccordSchema = z.object({

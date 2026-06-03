@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { CreateAccordInput } from "@/lib/validations/accord";
+import { REPAYMENT_MODE_LABELS } from "@/lib/constants";
 
 const TYPES = [
   { id: "PRET", label: "Prêt d'argent / matériel", icon: Banknote, desc: "Remboursement de fonds ou de biens prêtés à un tiers." },
@@ -43,6 +44,8 @@ export function CreateAccordForm({
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [partnerLookup, setPartnerLookup] = useState<{ name: string; username: string } | null>(null);
+  const [lookupLoading, setLookupLoading] = useState(false);
   const [data, setData] = useState<Partial<CreateAccordInput>>({
     type: "PRET",
     devise: "FCFA",
@@ -69,15 +72,47 @@ export function CreateAccordForm({
       }
       return;
     }
+    if (json.notarialFlow) {
+      router.push(`/accords/${json.data.id}/signer`);
+      return;
+    }
     router.push(`/accords/${json.data.id}`);
   }
 
+  async function lookupPartner(username: string) {
+    if (username.length < 3) {
+      setPartnerLookup(null);
+      return;
+    }
+    setLookupLoading(true);
+    const res = await fetch(`/api/users/lookup?username=${encodeURIComponent(username)}`);
+    const json = await res.json();
+    setLookupLoading(false);
+    if (res.ok) {
+      setPartnerLookup({ name: json.data.name ?? json.data.username, username: json.data.username });
+      setData((d) => ({
+        ...d,
+        destinataireNom: json.data.name ?? "",
+        destinataireEmail: undefined,
+      }));
+    } else {
+      setPartnerLookup(null);
+    }
+  }
+
+  const isNotarialPret = data.type === "PRET";
+
   const isStepValid = () => {
     if (step === 1) {
+      if (isNotarialPret) {
+        return !!data.counterpartyUsername && !!partnerLookup;
+      }
       return !!data.destinataireNom && !!data.destinataireEmail;
     }
     if (step === 2) {
-      return !!data.titre && !!data.description && data.description.length >= 20;
+      const base = !!data.titre && !!data.description && data.description.length >= 20;
+      if (isNotarialPret) return base && !!data.repaymentMode && !!data.montant;
+      return base;
     }
     return true;
   };
@@ -196,27 +231,61 @@ export function CreateAccordForm({
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="destinataireNom" className="text-xs font-black uppercase tracking-widest text-neutral-500">Nom du partenaire</Label>
-                      <Input
-                        id="destinataireNom"
-                        placeholder="Ex: Koffi Mensah"
-                        className="h-14 rounded-2xl text-lg font-bold px-6"
-                        value={data.destinataireNom ?? ""}
-                        onChange={(e) => setData({ ...data, destinataireNom: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="destinataireEmail" className="text-xs font-black uppercase tracking-widest text-neutral-500">Email du partenaire</Label>
-                      <Input
-                        id="destinataireEmail"
-                        type="email"
-                        placeholder="koffi.m@email.com"
-                        className="h-14 rounded-2xl text-lg font-bold px-6 font-mono"
-                        value={data.destinataireEmail ?? ""}
-                        onChange={(e) => setData({ ...data, destinataireEmail: e.target.value })}
-                      />
-                    </div>
+                    {isNotarialPret ? (
+                      <div className="space-y-2">
+                        <Label htmlFor="counterpartyUsername" className="text-xs font-black uppercase tracking-widest text-neutral-500">
+                          @id du partenaire
+                        </Label>
+                        <div className="flex gap-2">
+                          <div className="flex flex-1 rounded-2xl border border-neutral-200 overflow-hidden">
+                            <span className="flex items-center bg-neutral-50 px-4 text-neutral-500">@</span>
+                            <Input
+                              id="counterpartyUsername"
+                              placeholder="koffi_mensah"
+                              className="h-14 rounded-none border-0 text-lg font-bold"
+                              value={(data.counterpartyUsername ?? "").replace(/^@/, "")}
+                              onChange={(e) => {
+                                const v = e.target.value.replace(/^@/, "");
+                                setData({ ...data, counterpartyUsername: v });
+                                void lookupPartner(v);
+                              }}
+                            />
+                          </div>
+                        </div>
+                        {lookupLoading && (
+                          <p className="text-xs text-neutral-500">Recherche…</p>
+                        )}
+                        {partnerLookup && (
+                          <p className="text-sm font-semibold text-primary-800">
+                            Partenaire trouvé : {partnerLookup.name} ({partnerLookup.username})
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="destinataireNom" className="text-xs font-black uppercase tracking-widest text-neutral-500">Nom du partenaire</Label>
+                          <Input
+                            id="destinataireNom"
+                            placeholder="Ex: Koffi Mensah"
+                            className="h-14 rounded-2xl text-lg font-bold px-6"
+                            value={data.destinataireNom ?? ""}
+                            onChange={(e) => setData({ ...data, destinataireNom: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="destinataireEmail" className="text-xs font-black uppercase tracking-widest text-neutral-500">Email du partenaire</Label>
+                          <Input
+                            id="destinataireEmail"
+                            type="email"
+                            placeholder="koffi.m@email.com"
+                            className="h-14 rounded-2xl text-lg font-bold px-6 font-mono"
+                            value={data.destinataireEmail ?? ""}
+                            onChange={(e) => setData({ ...data, destinataireEmail: e.target.value })}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -262,6 +331,30 @@ export function CreateAccordForm({
                       />
                     </div>
                   </div>
+                  {isNotarialPret && (
+                    <div className="space-y-3">
+                      <Label className="text-xs font-black uppercase tracking-widest text-neutral-500">
+                        Mode de remboursement
+                      </Label>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {(["MUTUAL_CONFIRM", "SCHEDULED_DEBIT"] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => setData({ ...data, repaymentMode: mode })}
+                            className={cn(
+                              "rounded-xl border-2 px-4 py-3 text-left text-sm font-semibold transition-colors min-h-[44px]",
+                              data.repaymentMode === mode
+                                ? "border-primary-600 bg-primary-50 text-primary-800"
+                                : "border-neutral-200 hover:border-neutral-300"
+                            )}
+                          >
+                            {REPAYMENT_MODE_LABELS[mode]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="description" className="text-xs font-black uppercase tracking-widest text-neutral-500">Description détaillée</Label>
                     <textarea
