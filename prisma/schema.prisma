@@ -38,6 +38,7 @@ model User {
   fulfillmentsConfirmed AccordFulfillment[] @relation("FulfillmentConfirmedBy")
   wallet               Wallet?
   paymentIntents       PaymentIntent[]
+  accordSignatures     AccordSignature[]
 }
 
 model Account {
@@ -98,6 +99,10 @@ model Accord {
   sentAt          DateTime?
   viewedAt        DateTime?
 
+  counterpartyUsername String?
+  repaymentMode        RepaymentMode?
+  signatureExpiresAt   DateTime?
+
   initiateurId    String
   destinataireId  String?
 
@@ -107,6 +112,8 @@ model Accord {
   voiceSessions   VoiceSignatureSession[]
   partySessions   AccordPartySession[]
   fulfillment     AccordFulfillment?
+  signatures      AccordSignature[]
+  notarialAct     AccordNotarialAct?
 }
 
 model AccordPartySession {
@@ -294,6 +301,64 @@ enum AccordStatut {
   OVERDUE
   HONORED
   DISPUTED
+  AWAITING_INITIATOR_SIGN
+  AWAITING_COUNTERPARTY_SIGN
+  DUAL_SIGNED
+  CANCELLED_TIMEOUT
+  ESCROW_FUNDED
+  ACTIVE
+  REPAYING
+  CLOSED
+}
+
+enum RepaymentMode {
+  MUTUAL_CONFIRM
+  SCHEDULED_DEBIT
+}
+
+enum SignatureRole {
+  INITIATOR
+  COUNTERPARTY
+}
+
+model NotarialTemplate {
+  id           String     @id @default(cuid())
+  version      String
+  accordType   AccordType
+  stampUrl     String
+  fieldsSchema Json       @default("{}")
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  acts AccordNotarialAct[]
+}
+
+model AccordNotarialAct {
+  id           String   @id @default(cuid())
+  accordId     String   @unique
+  templateId   String
+  filledFields Json
+  contentHash  String?
+  generatedAt  DateTime @default(now())
+
+  accord   Accord           @relation(fields: [accordId], references: [id], onDelete: Cascade)
+  template NotarialTemplate @relation(fields: [templateId], references: [id])
+}
+
+model AccordSignature {
+  id         String         @id @default(cuid())
+  accordId   String
+  userId     String
+  role       SignatureRole
+  signedName String
+  signedAt   DateTime       @default(now())
+  ipAddress  String?
+
+  accord Accord @relation(fields: [accordId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([accordId, role])
+  @@index([accordId])
 }
 
 enum KycStatus {
