@@ -2,14 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle, Clock, Copy } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, Copy, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatMontant } from "@/lib/utils";
 
 type FulfillmentData = {
   eligible: boolean;
   isCreditor: boolean;
+  notarialWallet?: boolean;
+  repaymentMode?: string | null;
+  repaymentModeLabel?: string | null;
+  walletBalance?: number | null;
+  montantRequired?: number;
   accordStatut: string;
+  montant: number;
   daysUntilDue: number | null;
   daysOverdue: number;
   executerUrl: string | null;
@@ -26,6 +32,7 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState("");
   const [error, setError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,12 +64,37 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
     window.location.reload();
   }
 
+  async function declareWalletRepayment() {
+    setActionLoading(true);
+    setError("");
+    const res = await fetch(`/api/accords/${accordId}/repayment/declare`, { method: "POST" });
+    const json = await res.json();
+    setActionLoading(false);
+    if (!res.ok) {
+      setError(json.error?.message ?? "Erreur");
+      return;
+    }
+    await load();
+  }
+
   if (loading || !data?.eligible) return null;
 
   const statut = data.accordStatut;
   const isOverdue = statut === "OVERDUE";
   const isHonored = statut === "HONORED";
   const declared = data.fulfillment?.status === "DECLARED";
+  const isScheduled = data.repaymentMode === "SCHEDULED_DEBIT";
+  const canWalletDeclare =
+    data.notarialWallet &&
+    !data.isCreditor &&
+    data.repaymentMode === "MUTUAL_CONFIRM" &&
+    !declared &&
+    !isHonored;
+
+  const insufficientBalance =
+    data.walletBalance != null &&
+    data.montantRequired != null &&
+    data.walletBalance < data.montantRequired;
 
   const bannerClass = cn(
     "glass-card rounded-2xl p-5 md:p-6 space-y-4",
@@ -70,7 +102,7 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
   );
 
   let statusLine = "En cours — suivi d'exécution";
-  if (isHonored) statusLine = "Accord honoré";
+  if (isHonored) statusLine = "Accord honoré — remboursement confirmé";
   else if (isOverdue)
     statusLine = `En retard — échéance dépassée depuis ${data.daysOverdue} jour(s)`;
   else if (data.daysUntilDue != null && data.daysUntilDue >= 0)
@@ -89,6 +121,11 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
         <div>
           <h3 className="text-sm font-bold text-neutral-950">Exécution de l&apos;accord</h3>
           <p className="text-xs text-neutral-600 mt-0.5">{statusLine}</p>
+          {data.notarialWallet && data.repaymentModeLabel && (
+            <p className="text-[11px] text-neutral-500 mt-1">
+              Mode : {data.repaymentModeLabel}
+            </p>
+          )}
           <p className="text-[11px] text-neutral-500 mt-2">
             La signature ne vaut pas remboursement — cette section suit l&apos;exécution réelle.
           </p>
@@ -113,6 +150,13 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
         Honoré
       </div>
 
+      {data.notarialWallet && isScheduled && !isHonored && (
+        <p className="text-xs text-neutral-600 rounded-xl bg-neutral-50 border border-neutral-100 px-4 py-3">
+          Le montant sera prélevé automatiquement sur le portefeuille de l&apos;emprunteur à
+          l&apos;échéance ({formatMontant(data.montant, "XOF")}).
+        </p>
+      )}
+
       {!isHonored && data.isCreditor && (
         <div className="flex flex-wrap gap-2">
           {declared ? (
@@ -121,8 +165,10 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
             </Button>
           ) : (
             <p className="text-xs text-neutral-600 w-full">
-              En attente de déclaration du débiteur.
-              {data.executerUrl && (
+              {data.notarialWallet && isScheduled
+                ? "Prélèvement automatique en attente de l'échéance."
+                : "En attente de déclaration de l'emprunteur."}
+              {!data.notarialWallet && data.executerUrl && (
                 <button
                   type="button"
                   className="ml-2 inline-flex items-center gap-1 text-primary-700 font-semibold"
@@ -143,10 +189,43 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
         </div>
       )}
 
-      {!isHonored && !data.isCreditor && data.executerUrl && (
+      {canWalletDeclare && (
+        <div className="space-y-3 rounded-xl border border-primary-100 bg-primary-50/50 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary-900">
+            <Wallet className="h-4 w-4" />
+            Remboursement portefeuille
+          </div>
+          {data.walletBalance != null && (
+            <p className="text-xs text-neutral-600">
+              Votre solde : {formatMontant(data.walletBalance, "XOF")} · Montant dû :{" "}
+              {formatMontant(data.montantRequired ?? data.montant, "XOF")}
+            </p>
+          )}
+          {insufficientBalance && (
+            <p className="text-xs text-amber-800">
+              Solde insuffisant. Rechargez votre portefeuille avant de rembourser.
+            </p>
+          )}
+          <Button
+            className="w-full sm:w-auto gap-2"
+            loading={actionLoading}
+            disabled={insufficientBalance}
+            onClick={() => void declareWalletRepayment()}
+          >
+            <Wallet className="h-4 w-4" />
+            Rembourser depuis mon portefeuille
+          </Button>
+        </div>
+      )}
+
+      {!isHonored && !data.isCreditor && !data.notarialWallet && data.executerUrl && (
         <Button asChild className="w-full sm:w-auto">
           <a href={data.executerUrl}>Déclarer mon remboursement</a>
         </Button>
+      )}
+
+      {error && (
+        <p className="text-xs text-error-700 rounded-lg bg-error-50 px-3 py-2">{error}</p>
       )}
 
       {isHonored && (

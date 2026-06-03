@@ -70,4 +70,11 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   HONORED: "Accord honoré",
   DISPUTED: "Litige ouvert",
   PARTY_SESSION_COMPLETED: "Parcours terminé",
+  INITIATOR_SIGNED: "Initiateur a signé",
+  COUNTERPARTY_SIGNED: "Contrepartie a signé",
+  DUAL_SIGNED: "Double signature",
+  ESCROW_FUNDED: "Fonds en escrow",
+  ACTIVE: "Accord actif",
+  REPAYMENT_TRANSFER: "Remboursement portefeuille",
+  CANCELLED_TIMEOUT: "Annulé (délai)",
 };

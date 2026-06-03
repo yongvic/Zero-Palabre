@@ -37,7 +37,21 @@ export default async function AccordDetailPage({
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-  const showFulfillment = ["ACCEPTED", "OVERDUE", "HONORED", "DISPUTED"].includes(accord.statut) && accord.montant != null;
+  const showFulfillment =
+    ["ACCEPTED", "OVERDUE", "HONORED", "DISPUTED", "ESCROW_FUNDED", "ACTIVE", "REPAYING"].includes(
+      accord.statut
+    ) && accord.montant != null;
+
+  const isNotarial = Boolean(accord.counterpartyUsername);
+  const awaitingSign = ["AWAITING_INITIATOR_SIGN", "AWAITING_COUNTERPARTY_SIGN"].includes(accord.statut);
+  const canDownloadNotarial = [
+    "DUAL_SIGNED",
+    "ESCROW_FUNDED",
+    "ACTIVE",
+    "REPAYING",
+    "HONORED",
+    "OVERDUE",
+  ].includes(accord.statut);
 
   return (
     <div className="mx-auto max-w-4xl space-y-10">
@@ -52,7 +66,20 @@ export default async function AccordDetailPage({
           Retour à la liste
         </Link>
         <div className="flex flex-wrap gap-3">
-          {["ACCEPTED", "HONORED", "OVERDUE"].includes(accord.statut) && (
+          {awaitingSign && (
+            <Button asChild className="rounded-xl">
+              <Link href={`/accords/${accord.id}/signer`}>Signer l&apos;accord</Link>
+            </Button>
+          )}
+          {canDownloadNotarial && (
+            <Button variant="secondary" asChild className="rounded-xl shadow-sm">
+              <a href={`/api/accords/${accord.id}/pdf/notarial`} target="_blank" rel="noopener">
+                <Download className="h-4 w-4 mr-2" strokeWidth={2.5} />
+                Acte notarial
+              </a>
+            </Button>
+          )}
+          {["ACCEPTED", "HONORED", "OVERDUE"].includes(accord.statut) && !isNotarial && (
             <Button variant="secondary" asChild className="rounded-xl shadow-sm">
               <a href={`/api/accords/${accord.id}/pdf`} target="_blank" rel="noopener">
                 <Download className="h-4 w-4 mr-2" strokeWidth={2.5} />
@@ -197,11 +224,18 @@ export default async function AccordDetailPage({
 
           <Card className="bg-primary-50 border-primary-100 p-6 space-y-4 rounded-3xl">
              <div className="space-y-2">
-               <h3 className="text-sm font-bold text-primary-900">Validation Destinataire</h3>
+               <h3 className="text-sm font-bold text-primary-900">
+                 {isNotarial ? "Signature & validation" : "Validation Destinataire"}
+               </h3>
                <p className="text-xs leading-relaxed text-primary-800/70 font-medium">
-                 Partagez ce lien unique avec votre destinataire pour qu&apos;il puisse valider numériquement cet accord.
+                 {isNotarial
+                   ? awaitingSign
+                     ? "Complétez la double signature notariale depuis la page dédiée."
+                     : "Accord notarial scellé — le remboursement se fait via le portefeuille."
+                   : "Partagez ce lien unique avec votre destinataire pour qu'il puisse valider numériquement cet accord."}
                </p>
              </div>
+             {!isNotarial && (
              <div className="relative group">
                <div className="bg-neutral-0 border border-primary-200 rounded-xl p-3 font-mono text-[11px] text-primary-700 truncate group-hover:bg-primary-50 transition-colors">
                   {baseUrl}/valider/{accord.publicToken}
@@ -211,6 +245,12 @@ export default async function AccordDetailPage({
                  label="Copier le lien sécurisé"
                />
              </div>
+             )}
+             {isNotarial && awaitingSign && (
+               <Button asChild variant="secondary" className="w-full">
+                 <Link href={`/accords/${accord.id}/signer`}>Aller à la signature</Link>
+               </Button>
+             )}
           </Card>
         </div>
       </div>

@@ -7,9 +7,10 @@ import { ensureFulfillmentRecord } from "./record";
 export async function markOverdueAccords() {
   const candidates = await prisma.accord.findMany({
     where: {
-      statut: "ACCEPTED",
+      statut: { in: ["ACCEPTED", "ACTIVE", "REPAYING"] },
       dateEcheance: { not: null },
       montant: { not: null },
+      repaymentMode: { not: "SCHEDULED_DEBIT" },
     },
     include: { initiateur: true },
   });

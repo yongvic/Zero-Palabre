@@ -80,7 +80,7 @@ export function SignAccordClient({ accordId }: { accordId: string }) {
     (info.statut === "AWAITING_INITIATOR_SIGN" && info.role === "INITIATOR") ||
     (info.statut === "AWAITING_COUNTERPARTY_SIGN" && info.role === "COUNTERPARTY");
 
-  const done = ["DUAL_SIGNED", "ESCROW_FUNDED", "ACTIVE", "HONORED"].includes(info.statut);
+  const done = ["DUAL_SIGNED", "ESCROW_FUNDED", "ACTIVE", "REPAYING", "HONORED"].includes(info.statut);
 
   return (
     <div className="mx-auto max-w-lg space-y-6">

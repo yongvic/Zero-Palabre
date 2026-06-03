@@ -64,11 +64,15 @@ export async function fundLoanFromEscrow(accordId: string) {
 
     await tx.accord.update({
       where: { id: accordId },
-      data: { statut: "ESCROW_FUNDED" },
+      data: { statut: "ACTIVE" },
     });
 
     await tx.accordEvent.create({
       data: { accordId, type: "ESCROW_FUNDED", metadata: { amount } },
+    });
+
+    await tx.accordEvent.create({
+      data: { accordId, type: "ACTIVE", metadata: { amount } },
     });
 
     return { lenderAfter: Number(lenderAfter), borrowerAfter: Number(borrowerAfter) };

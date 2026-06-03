@@ -1,12 +1,23 @@
 import { prisma } from "@/lib/prisma";
 import type { Accord } from "@prisma/client";
 
-const FULFILLMENT_ELIGIBLE = ["ACCEPTED", "OVERDUE"] as const;
+const FULFILLMENT_ELIGIBLE = [
+  "ACCEPTED",
+  "OVERDUE",
+  "ESCROW_FUNDED",
+  "ACTIVE",
+  "REPAYING",
+] as const;
 
 export function accordNeedsFulfillment(
   accord: Pick<Accord, "montant" | "statut">
 ): boolean {
-  return accord.montant != null && FULFILLMENT_ELIGIBLE.includes(accord.statut as "ACCEPTED" | "OVERDUE");
+  return (
+    accord.montant != null &&
+    FULFILLMENT_ELIGIBLE.includes(
+      accord.statut as (typeof FULFILLMENT_ELIGIBLE)[number]
+    )
+  );
 }
 
 export async function ensureFulfillmentRecord(accordId: string) {

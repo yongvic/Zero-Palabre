@@ -3,8 +3,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureFulfillmentRecord } from "@/lib/fulfillment/record";
 import { daysUntilDue, daysOverdue } from "@/lib/fulfillment/schedule";
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
+import { PAYMENT_METHOD_LABELS, REPAYMENT_MODE_LABELS } from "@/lib/constants";
 import { trustLevelLabel } from "@/lib/fulfillment/trust";
+import { isNotarialWalletAccord } from "@/lib/notarial/is-notarial-accord";
+import { getOrCreateWallet } from "@/lib/wallet/ledger";
 
 export async function GET(
   _req: Request,
@@ -42,11 +44,25 @@ export async function GET(
 
   const isCreditor = accord.initiateurId === session.user.id;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const notarialWallet = isNotarialWalletAccord(accord);
+
+  let walletBalance: number | null = null;
+  if (notarialWallet && session.user.id === accord.destinataireId) {
+    const wallet = await getOrCreateWallet(session.user.id);
+    walletBalance = Number(wallet.balanceAvailable);
+  }
 
   return NextResponse.json({
     data: {
       eligible: true,
       isCreditor,
+      notarialWallet,
+      repaymentMode: accord.repaymentMode,
+      repaymentModeLabel: accord.repaymentMode
+        ? REPAYMENT_MODE_LABELS[accord.repaymentMode]
+        : null,
+      walletBalance,
+      montantRequired: Number(accord.montant),
       accordStatut: accord.statut,
       montant: Number(accord.montant),
       dateEcheance: accord.dateEcheance?.toISOString() ?? null,

@@ -87,7 +87,7 @@ export async function POST(
 
     if (accord.statut === "AWAITING_COUNTERPARTY_SIGN" && accord.destinataireId === session.user.id) {
       await signAsCounterparty(params.id, session.user.id, signedName, ip);
-      return NextResponse.json({ data: { statut: "ESCROW_FUNDED" } });
+      return NextResponse.json({ data: { statut: "ACTIVE" } });
     }
 
     return NextResponse.json({ error: { message: "Signature non disponible pour cet accord" } }, { status: 400 });

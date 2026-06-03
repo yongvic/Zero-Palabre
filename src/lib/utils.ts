@@ -67,6 +67,14 @@ export function statutToBadgeVariant(statut: string): "default" | "pending" | "s
     OVERDUE: "overdue",
     HONORED: "honored",
     DISPUTED: "disputed",
+    AWAITING_INITIATOR_SIGN: "pending",
+    AWAITING_COUNTERPARTY_SIGN: "sent",
+    DUAL_SIGNED: "accepted",
+    CANCELLED_TIMEOUT: "expired",
+    ESCROW_FUNDED: "accepted",
+    ACTIVE: "accepted",
+    REPAYING: "viewed",
+    CLOSED: "honored",
   };
   return map[statut] ?? "default";
 }
