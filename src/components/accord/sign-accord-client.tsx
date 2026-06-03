@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { ACCORD_STATUT_LABELS } from "@/lib/constants";
+import { PretActHtmlPreview } from "@/components/notarial/pret-act-preview";
 
 type SignState = {
   reference: string;
@@ -26,17 +27,25 @@ export function SignAccordClient({ accordId }: { accordId: string }) {
   const [signedName, setSignedName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [actHtml, setActHtml] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/accords/${accordId}/sign`);
-    const json = await res.json();
+    const [signRes, actRes] = await Promise.all([
+      fetch(`/api/accords/${accordId}/sign`),
+      fetch(`/api/accords/${accordId}/acte/preview`),
+    ]);
+    const json = await signRes.json();
     setLoading(false);
-    if (!res.ok) {
+    if (!signRes.ok) {
       setError(json.error?.message ?? "Erreur");
       return;
     }
     setInfo(json.data as SignState);
+    if (actRes.ok) {
+      const actJson = await actRes.json();
+      setActHtml(actJson.data?.html ?? null);
+    }
   }, [accordId]);
 
   useEffect(() => {
@@ -83,7 +92,7 @@ export function SignAccordClient({ accordId }: { accordId: string }) {
   const done = ["DUAL_SIGNED", "ESCROW_FUNDED", "ACTIVE", "REPAYING", "HONORED"].includes(info.statut);
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">Signature</p>
         <h1 className="text-2xl font-bold text-neutral-950">{info.titre}</h1>
@@ -97,6 +106,15 @@ export function SignAccordClient({ accordId }: { accordId: string }) {
           </p>
         )}
       </div>
+
+      {actHtml && (canSign || done) && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            Aperçu de l&apos;acte notarial
+          </p>
+          <PretActHtmlPreview html={actHtml} />
+        </div>
+      )}
 
       {done && (
         <Card className="space-y-4 p-6">

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Modèle — Acte de prêt d'argent · Zéro-Palabre</title>
+  <style>
+    body { font-family: Georgia, "Times New Roman", serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.65; color: #1a1a16; }
+    h1 { font-size: 1.125rem; text-align: center; color: #0f6e56; letter-spacing: 0.04em; }
+    .ref { text-align: center; font-size: 0.75rem; color: #757570; }
+    h2 { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #0f6e56; margin-top: 1.25rem; }
+    p { text-align: justify; margin: 0.5rem 0; }
+    .party { border-left: 2px solid #b8ddd0; padding-left: 0.75rem; }
+    .sig { font-weight: 600; }
+    .closing { text-align: center; font-size: 0.85rem; color: #5a5a52; margin-top: 2rem; }
+    em { font-style: normal; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>ACTE DE PRÊT D'ARGENT</h1>
+  <p class="ref">Référence {{reference}} · {{templateVersion}}</p>
+
+  <p>Les soussignés ont comparu et, de leur gré, établi le présent acte aux termes suivants.</p>
+
+  <h2>Comparution</h2>
+  <p class="party">1°) {{preteur_identite}}, ci-après dénommé(e) « <em>LE PRÊTEUR</em> ».</p>
+  <p class="party">2°) {{emprunteur_identite}}, ci-après dénommé(e) « <em>L'EMPRUNTEUR</em> ».</p>
+
+  <h2>Exposé</h2>
+  <p>Je soussigné, {{preteur_nom}}, agissant en qualité de PRÊTEUR, déclare avoir consenti à {{emprunteur_nom}}, EMPRUNTEUR, un prêt de deniers d'un montant de {{montant_lettres}} ({{montant_chiffres}}), sans intérêt conventionnel, aux fins suivantes : {{titre}}.</p>
+  <p>{{description}}</p>
+  <p>Je soussigné, {{emprunteur_nom}}, agissant en qualité d'EMPRUNTEUR, reconnais avoir reçu ledit prêt et m'engage à en restituer le capital intégral au PRÊTEUR, au plus tard le {{date_echeance}}, par les voies de paiement prévues sur la plateforme Zéro-Palabre.</p>
+
+  <h2>Article 1 — Objet et montant</h2>
+  <p>Le PRÊTEUR déclare avoir prêté à l'EMPRUNTEUR la somme de {{montant_lettres}}, soit {{montant_chiffres}}.</p>
+
+  <h2>Article 2 — Échéance</h2>
+  <p>Le remboursement intégral du capital est exigible au plus tard le {{date_echeance}}.</p>
+
+  <h2>Article 3 — Engagements</h2>
+  <p>L'EMPRUNTEUR s'oblige à restituer la somme empruntée. Le PRÊTEUR reconnaît le caractère librement consenti du présent prêt.</p>
+
+  <h2>Article 4 — Signatures</h2>
+  <p class="sig">Le PRÊTEUR : {{signature_preteur}}</p>
+  <p class="sig">L'EMPRUNTEUR : {{signature_emprunteur}}</p>
+
+  <p class="closing">Fait sur la plateforme Zéro-Palabre, République Togolaise.</p>
+</body>
+</html>

@@ -7,23 +7,36 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import type { NotarialFilledFields } from "@/lib/notarial/build-fields";
+import { buildPretActParagraphs } from "@/lib/notarial/templates/pret-act-prose";
 
 const styles = StyleSheet.create({
-  page: { padding: 48, fontFamily: "Helvetica", fontSize: 10, lineHeight: 1.45 },
-  header: { marginBottom: 20, borderBottomWidth: 2, borderBottomColor: "#0F6E56", paddingBottom: 12 },
-  title: { fontSize: 16, fontWeight: "bold", color: "#0F6E56" },
-  ref: { fontSize: 9, color: "#5A5A52", marginTop: 4 },
-  section: { marginTop: 14 },
-  sectionTitle: { fontSize: 9, fontWeight: "bold", color: "#0F6E56", marginBottom: 6, textTransform: "uppercase" },
-  row: { flexDirection: "row", marginBottom: 4 },
-  label: { width: "38%", fontSize: 9, color: "#757570" },
-  value: { width: "62%", fontSize: 10, color: "#1A1A16" },
-  body: { fontSize: 10, color: "#1A1A16", marginTop: 4 },
-  stampRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 32, alignItems: "flex-end" },
-  stamp: { width: 88, height: 88, opacity: 0.9 },
-  stampCaption: { fontSize: 7, color: "#757570", marginTop: 4, textAlign: "right" },
-  footer: { position: "absolute", bottom: 36, left: 48, right: 48, fontSize: 7, color: "#9A9A94" },
-  hash: { fontSize: 6, marginTop: 6, color: "#757570" },
+  page: { padding: 48, fontFamily: "Helvetica", fontSize: 9.5, lineHeight: 1.5 },
+  title: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#0F6E56",
+    textAlign: "center",
+    marginBottom: 4,
+    letterSpacing: 1,
+  },
+  ref: { fontSize: 8, color: "#757570", textAlign: "center", marginBottom: 16 },
+  heading: {
+    fontSize: 8,
+    fontWeight: "bold",
+    color: "#0F6E56",
+    marginTop: 12,
+    marginBottom: 4,
+    letterSpacing: 0.8,
+  },
+  declaration: { fontSize: 9.5, textAlign: "justify", marginVertical: 6 },
+  body: { fontSize: 9.5, textAlign: "justify", marginVertical: 3 },
+  party: { fontSize: 9.5, marginVertical: 2, paddingLeft: 8 },
+  signature: { fontSize: 9.5, fontWeight: "bold", marginVertical: 2 },
+  closing: { fontSize: 8.5, color: "#5A5A52", textAlign: "center", marginTop: 16 },
+  stampRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 24, alignItems: "flex-end" },
+  stamp: { width: 80, height: 80, opacity: 0.9 },
+  stampCaption: { fontSize: 6.5, color: "#757570", marginTop: 4, textAlign: "right" },
+  footer: { position: "absolute", bottom: 32, left: 48, right: 48, fontSize: 6.5, color: "#9A9A94" },
 });
 
 export type NotarialPdfProps = {
@@ -32,66 +45,36 @@ export type NotarialPdfProps = {
   notaryCaption: string;
 };
 
-function PartyBlock({ title, party }: { title: string; party: NotarialFilledFields["initiateur"] }) {
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {[
-        ["Nom", party.nom],
-        ["Nom de famille", party.familyName],
-        ["Identifiant", party.username],
-        ["Téléphone", party.phone],
-        ["Date de naissance", party.dateNaissance],
-        ["Adresse", party.adresse],
-        ["Signature", party.signature],
-        ["Date de signature", party.signedAt],
-      ].map(([label, value]) => (
-        <View key={label} style={styles.row}>
-          <Text style={styles.label}>{label}</Text>
-          <Text style={styles.value}>{value}</Text>
-        </View>
-      ))}
-    </View>
-  );
+function paragraphStyle(text: string) {
+  if (text.startsWith("ACTE DE")) return styles.title;
+  if (text.startsWith("Référence")) return styles.ref;
+  if (
+    text === "COMPARUTION" ||
+    text.startsWith("ARTICLE") ||
+    text === "EXPOSÉ"
+  )
+    return styles.heading;
+  if (/^\d+°\)/.test(text)) return styles.party;
+  if (text.startsWith("Je soussigné")) return styles.declaration;
+  if (text.startsWith("Le PRÊTEUR") || text.startsWith("L'EMPRUNTEUR"))
+    return styles.signature;
+  if (text.startsWith("Fait sur")) return styles.closing;
+  return styles.body;
 }
 
 export function NotarialActPdfDocument({ fields, stampSrc, notaryCaption }: NotarialPdfProps) {
+  const paragraphs = buildPretActParagraphs(fields);
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Acte notarial — {fields.typeLabel}</Text>
-          <Text style={styles.ref}>Réf. {fields.reference} · {fields.templateVersion}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Objet</Text>
-          <Text style={styles.body}>{fields.titre}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.body}>{fields.description}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Montant</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>En chiffres</Text>
-            <Text style={styles.value}>{fields.montantChiffres}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>En lettres</Text>
-            <Text style={styles.value}>{fields.montantLettres}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Échéance</Text>
-            <Text style={styles.value}>{fields.dateEcheance}</Text>
-          </View>
-        </View>
-
-        <PartyBlock title="Partie initiatrice" party={fields.initiateur} />
-        <PartyBlock title="Contrepartie" party={fields.contrepartie} />
+        {paragraphs.map((p, i) =>
+          p === "" ? null : (
+            <Text key={i} style={paragraphStyle(p)}>
+              {p}
+            </Text>
+          )
+        )}
 
         <View style={styles.stampRow}>
           <View>
@@ -102,8 +85,8 @@ export function NotarialActPdfDocument({ fields, stampSrc, notaryCaption }: Nota
 
         <View style={styles.footer}>
           <Text>
-            Document généré sur template validé par le notaire partenaire. Zéro-Palabre — plateforme de
-            formalisation d&apos;accords.
+            Acte généré sur template validé par le notaire partenaire · Zéro-Palabre · République
+            Togolaise
           </Text>
         </View>
       </Page>
