@@ -18,6 +18,10 @@ interface ProfileEditorProps {
   user: {
     id: string;
     name: string | null;
+    familyName: string | null;
+    username: string | null;
+    dateOfBirth: string | null;
+    address: string | null;
     email: string;
     image: string | null;
     phone: string | null;
@@ -57,6 +61,16 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
   });
   const [passwordAlert, setPasswordAlert] = useState<AlertState>(null);
   const [isPendingPassword, startPasswordTransition] = useTransition();
+
+  const [identityForm, setIdentityForm] = useState({
+    username: user.username ?? "",
+    familyName: user.familyName ?? "",
+    dateOfBirth: user.dateOfBirth ?? "",
+    address: user.address ?? "",
+    phone: user.phone ?? "",
+  });
+  const [identityAlert, setIdentityAlert] = useState<AlertState>(null);
+  const [isPendingIdentity, startIdentityTransition] = useTransition();
 
   /* ─────────── Avatar Upload ─────────── */
   const handleAvatarClick = () => fileInputRef.current?.click();
@@ -127,6 +141,23 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
       } catch {
         setPasswordAlert({ type: "error", message: "Erreur réseau. Réessayez." });
       }
+    });
+  };
+
+  const handleIdentitySave = () => {
+    startIdentityTransition(async () => {
+      setIdentityAlert(null);
+      const res = await fetch("/api/profile/identity", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(identityForm),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setIdentityAlert({ type: "error", message: json.error?.message ?? "Erreur" });
+        return;
+      }
+      setIdentityAlert({ type: "success", message: "Identité enregistrée." });
     });
   };
 
@@ -207,6 +238,93 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
         </div>
 
         {avatarAlert && <AlertBanner alert={avatarAlert} className="mt-4" />}
+      </div>
+
+      {/* ── Identité légale (acte notarial) ── */}
+      <div className="rounded-2xl border border-neutral-150 bg-white p-6 shadow-sm space-y-5">
+        <div>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500">
+            Identité &amp; @id
+          </h2>
+          <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+            Requis pour les accords notariés. Votre @id permet aux autres de vous retrouver.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-semibold text-neutral-600" htmlFor="username">
+              Identifiant public
+            </label>
+            <div className="flex rounded-xl border border-neutral-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary-500/30">
+              <span className="flex items-center bg-neutral-50 px-3 text-sm text-neutral-500">@</span>
+              <input
+                id="username"
+                className="min-h-[44px] flex-1 px-3 text-sm outline-none"
+                value={identityForm.username.replace(/^@/, "")}
+                onChange={(e) =>
+                  setIdentityForm({ ...identityForm, username: e.target.value.replace(/^@/, "") })
+                }
+                placeholder="koffi_mensah"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-neutral-600" htmlFor="familyName">
+              Nom de famille
+            </label>
+            <input
+              id="familyName"
+              className="min-h-[44px] w-full rounded-xl border border-neutral-200 px-3 text-sm"
+              value={identityForm.familyName}
+              onChange={(e) => setIdentityForm({ ...identityForm, familyName: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-neutral-600" htmlFor="dateOfBirth">
+              Date de naissance
+            </label>
+            <input
+              id="dateOfBirth"
+              type="date"
+              className="min-h-[44px] w-full rounded-xl border border-neutral-200 px-3 text-sm"
+              value={identityForm.dateOfBirth}
+              onChange={(e) => setIdentityForm({ ...identityForm, dateOfBirth: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-semibold text-neutral-600" htmlFor="address">
+              Adresse
+            </label>
+            <textarea
+              id="address"
+              rows={2}
+              className="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm"
+              value={identityForm.address}
+              onChange={(e) => setIdentityForm({ ...identityForm, address: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-semibold text-neutral-600" htmlFor="profile-phone">
+              Téléphone
+            </label>
+            <input
+              id="profile-phone"
+              className="min-h-[44px] w-full rounded-xl border border-neutral-200 px-3 text-sm"
+              value={identityForm.phone}
+              onChange={(e) => setIdentityForm({ ...identityForm, phone: e.target.value })}
+            />
+          </div>
+        </div>
+        {identityAlert && <AlertBanner alert={identityAlert} />}
+        <button
+          type="button"
+          onClick={handleIdentitySave}
+          disabled={isPendingIdentity}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary-700 px-5 text-sm font-semibold text-white hover:bg-primary-600 disabled:opacity-60"
+        >
+          {isPendingIdentity && <Loader2 className="h-4 w-4 animate-spin" />}
+          Enregistrer l&apos;identité
+        </button>
       </div>
 
       {/* ── Section Infos ── */}

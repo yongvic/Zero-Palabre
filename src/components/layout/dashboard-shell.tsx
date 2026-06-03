@@ -11,6 +11,7 @@ import {
   User,
   X,
   Plus,
+  Wallet,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { AmbientBackground } from "@/components/layout/ambient-background";
 
 const nav = [
   { href: "/accords", label: "Mes accords", icon: FileText },
+  { href: "/portefeuille", label: "Portefeuille", icon: Wallet },
   { href: "/profil", label: "Profil", icon: User },
   { href: "/abonnement", label: "Abonnement", icon: CreditCard },
 ];

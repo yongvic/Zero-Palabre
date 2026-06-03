@@ -15,6 +15,7 @@ export default function InscriptionPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     name: "",
+    username: "",
     email: "",
     phone: "",
     password: "",
@@ -48,7 +49,10 @@ export default function InscriptionPage() {
     const registerRes = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        username: form.username.trim() || undefined,
+      }),
     });
 
     if (!registerRes.ok) {
@@ -56,6 +60,10 @@ export default function InscriptionPage() {
       setLoading(false);
       if (data?.error?.code === "EMAIL_EXISTS") {
         setError("Cet email est déjà utilisé. Connectez-vous.");
+      } else if (data?.error?.code === "USERNAME_EXISTS") {
+        setError("Cet identifiant @id est déjà pris.");
+      } else if (data?.error?.message) {
+        setError(data.error.message);
       } else {
         setError("Erreur lors de la création du compte. Vérifiez vos informations.");
       }
@@ -164,6 +172,25 @@ export default function InscriptionPage() {
                   className="h-11 rounded-xl"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                Identifiant public
+              </Label>
+              <div className="flex rounded-xl border border-neutral-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary-500/30">
+                <span className="flex items-center bg-neutral-50 px-3 text-sm text-neutral-500">@</span>
+                <Input
+                  id="username"
+                  placeholder="koffi_mensah"
+                  value={form.username}
+                  onChange={(e) =>
+                    setForm({ ...form, username: e.target.value.replace(/^@/, "") })
+                  }
+                  className="h-11 rounded-none border-0 focus-visible:ring-0"
+                />
+              </div>
+              <p className="text-[11px] text-neutral-400">Optionnel — requis pour les accords notariés.</p>
             </div>
 
             <div className="space-y-2">

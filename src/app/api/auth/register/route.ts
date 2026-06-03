@@ -21,6 +21,18 @@ export async function POST(req: Request) {
       );
     }
 
+    if (data.username) {
+      const usernameTaken = await prisma.user.findUnique({
+        where: { username: data.username },
+      });
+      if (usernameTaken) {
+        return NextResponse.json(
+          { error: { code: "USERNAME_EXISTS", message: "Cet identifiant est déjà pris." } },
+          { status: 409 }
+        );
+      }
+    }
+
     // Hacher le mot de passe
     const hashedPassword = await bcrypt.hash(data.password, 12);
 
@@ -29,6 +41,7 @@ export async function POST(req: Request) {
       data: {
         email: data.email,
         name: data.name,
+        username: data.username ?? null,
         phone: data.phone ?? null,
         password: hashedPassword,
         cguAcceptedAt: new Date(),
@@ -44,6 +57,9 @@ export async function POST(req: Request) {
       }),
       prisma.subscription.create({
         data: { userId: user.id, plan: "FREE" },
+      }),
+      prisma.wallet.create({
+        data: { userId: user.id },
       }),
       prisma.accord.updateMany({
         where: { destinataireEmail: user.email },

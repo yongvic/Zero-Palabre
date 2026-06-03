@@ -41,6 +41,12 @@ export default async function ProfilPage() {
       user={{
         id: user.id,
         name: user.name,
+        familyName: user.familyName,
+        username: user.username,
+        dateOfBirth: user.dateOfBirth
+          ? user.dateOfBirth.toISOString().slice(0, 10)
+          : null,
+        address: user.address,
         email: user.email,
         image: user.image,
         phone: user.phone,
