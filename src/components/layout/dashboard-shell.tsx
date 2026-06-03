@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { AmbientBackground } from "@/components/layout/ambient-background";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const nav = [
   { href: "/accords", label: "Mes accords", icon: FileText },
@@ -60,7 +61,7 @@ export function DashboardShell({
       <AmbientBackground />
 
       <aside className="glass-sidebar hidden w-64 flex-col lg:flex">
-        <div className="flex h-16 items-center border-b border-neutral-100 px-6">
+        <div className="flex h-16 items-center justify-between border-b border-neutral-100 px-6">
           <Link href="/accords" className="transition-opacity hover:opacity-80">
             <Image
               src="/brand/logo-vert.png"
@@ -71,6 +72,7 @@ export function DashboardShell({
               className="h-7 w-auto"
             />
           </Link>
+          <NotificationBell />
         </div>
 
         <div className="px-4 py-4">
@@ -211,18 +213,7 @@ export function DashboardShell({
             <Menu className="h-6 w-6" />
           </button>
           <span className="text-sm font-semibold tracking-tight text-neutral-900">Tableau de bord</span>
-          <Link
-            href="/profil"
-            className="relative h-9 w-9 overflow-hidden rounded-full border border-neutral-200"
-          >
-            {userImage ? (
-              <Image src={userImage} alt={userName ?? "profil"} fill className="object-cover" />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center bg-primary-50 text-[10px] font-bold text-primary-700">
-                {initials}
-              </span>
-            )}
-          </Link>
+          <NotificationBell />
         </header>
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden pb-16 lg:pb-0">

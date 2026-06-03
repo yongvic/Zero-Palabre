@@ -39,6 +39,7 @@ model User {
   wallet               Wallet?
   paymentIntents       PaymentIntent[]
   accordSignatures     AccordSignature[]
+  notifications        UserNotification[]
 }
 
 model Account {
@@ -114,6 +115,7 @@ model Accord {
   fulfillment     AccordFulfillment?
   signatures      AccordSignature[]
   notarialAct     AccordNotarialAct?
+  notifications   UserNotification[]
 }
 
 model AccordPartySession {
@@ -460,4 +462,28 @@ enum PaymentIntentStatus {
 enum PaymentDirection {
   DEPOSIT
   WITHDRAW
+}
+
+enum NotificationType {
+  DUE_DATE_REMINDER
+  SIGNATURE_REQUEST
+  REPAYMENT_UPDATE
+}
+
+model UserNotification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String           @db.Text
+  href      String?
+  accordId  String?
+  dedupeKey String           @unique
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accord Accord? @relation(fields: [accordId], references: [id], onDelete: SetNull)
+
+  @@index([userId, readAt, createdAt])
 }

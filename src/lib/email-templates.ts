@@ -112,3 +112,49 @@ export function accordOverdueEmail({
 </body>
 </html>`;
 }
+
+export function accordDueReminderEmail({
+  titre,
+  reference,
+  daysBefore,
+  montant,
+  dateEcheance,
+  role,
+  repaymentModeLabel,
+  accordUrl,
+}: {
+  titre: string;
+  reference: string;
+  daysBefore: number;
+  montant: string;
+  dateEcheance: string;
+  role: "borrower" | "lender";
+  repaymentModeLabel?: string;
+  accordUrl: string;
+}) {
+  const when =
+    daysBefore === 0
+      ? "aujourd'hui"
+      : daysBefore === 1
+        ? "demain"
+        : `dans ${daysBefore} jours`;
+
+  const roleLine =
+    role === "borrower"
+      ? `<p style="color:#5A5A52;font-size:14px;">${repaymentModeLabel ? `Mode : ${repaymentModeLabel}.` : "Pensez à effectuer le remboursement avant l'échéance."}</p>`
+      : `<p style="color:#5A5A52;font-size:14px;">Votre contrepartie doit rembourser avant le ${dateEcheance}.</p>`;
+
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<body style="font-family:sans-serif;background:#F9F9F6;padding:32px;">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;border:1px solid #E5E5DF;">
+    <h1 style="color:#0F6E56;font-size:20px;">Rappel — échéance ${when}</h1>
+    <p style="color:#1A1A16;line-height:1.6;">Accord <strong>${titre}</strong> (${reference})</p>
+    <p style="color:#1A1A16;line-height:1.6;">Montant : <strong>${montant}</strong> · Échéance : ${dateEcheance}</p>
+    ${roleLine}
+    <a href="${accordUrl}" style="display:inline-block;margin-top:20px;background:#0F6E56;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Voir l'accord</a>
+  </div>
+</body>
+</html>`;
+}

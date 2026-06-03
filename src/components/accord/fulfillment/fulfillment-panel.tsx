@@ -84,6 +84,8 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
   const isHonored = statut === "HONORED";
   const declared = data.fulfillment?.status === "DECLARED";
   const isScheduled = data.repaymentMode === "SCHEDULED_DEBIT";
+  const isDueSoon =
+    data.daysUntilDue != null && data.daysUntilDue >= 0 && data.daysUntilDue <= 7 && !isHonored;
   const canWalletDeclare =
     data.notarialWallet &&
     !data.isCreditor &&
@@ -149,6 +151,16 @@ export function FulfillmentPanel({ accordId }: { accordId: string }) {
         />
         Honoré
       </div>
+
+      {isDueSoon && (
+        <p className="text-xs text-amber-900 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
+          {data.daysUntilDue === 0
+            ? "Échéance aujourd'hui — une relance vous a été envoyée in-app et par email."
+            : data.daysUntilDue === 1
+              ? "Échéance demain — pensez au remboursement avant la date limite."
+              : `Échéance dans ${data.daysUntilDue} jours — vous recevrez des rappels à J-7, J-3 et J-1.`}
+        </p>
+      )}
 
       {data.notarialWallet && isScheduled && !isHonored && (
         <p className="text-xs text-neutral-600 rounded-xl bg-neutral-50 border border-neutral-100 px-4 py-3">

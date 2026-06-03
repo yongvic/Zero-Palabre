@@ -77,4 +77,5 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   ACTIVE: "Accord actif",
   REPAYMENT_TRANSFER: "Remboursement portefeuille",
   CANCELLED_TIMEOUT: "Annulé (délai)",
+  REMINDER_SENT: "Relance échéance",
 };
